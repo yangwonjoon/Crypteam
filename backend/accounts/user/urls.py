@@ -1,6 +1,7 @@
 from django.urls import path, include
-from .views import *
 
-urlpatterns =[
-    path('userinfo/', UserInfo, name = 'api-register'),
+from .views import DataView
+
+urlpatterns = [
+    path('data/', DataView.as_view()),
 ]
