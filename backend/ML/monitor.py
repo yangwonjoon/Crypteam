@@ -6,7 +6,7 @@ import pandas as pd
 # from DataLabeling import DataLabeling
 # from createImage import LabelingImg
 # from backtest import backtest
-
+import json
 def start_bot(coin_name, parameter,term, test_size, ImgPath = "ML_Result"):
     
     """
@@ -106,4 +106,4 @@ def start_bot(coin_name, parameter,term, test_size, ImgPath = "ML_Result"):
     for i in backtest_result:
         print(i,":",round(backtest_result[i],2))
 
-    return
+    return json.dumps(backtest_result)
