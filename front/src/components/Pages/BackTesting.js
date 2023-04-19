@@ -15,8 +15,9 @@ const BackTesting = () => {
             e.preventDefault(); //기본 폼 제출 방지
         
             const formData = { coin_name: coinName, parameter, term, test_size: testSize, ImgPath: imgPath };
-        
-            axios.post("/api/start_bot/", formData) //백엔드에 post 요청
+            
+            const url = 'http://127.0.0.1:8000/api/start_bot/';
+            axios.post(url, formData) //백엔드에 post 요청
             .then(res => setResult(JSON.stringify(res.data))) //응답 받으면 result에 저장
             .catch(err => console.log(err));
         };
