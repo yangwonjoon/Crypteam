@@ -11,6 +11,7 @@ const BackTesting = () => {
   const [result, setResult] = useState("");
   const [showModal, setShowModal] = useState(false);
 
+
   const handleModalClose = () => {
     setShowModal(false);
   };
@@ -85,6 +86,7 @@ const BackTesting = () => {
       </form>
     </div>
   );
+
 };
 
 export default BackTesting;

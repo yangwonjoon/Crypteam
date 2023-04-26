@@ -1,0 +1,76 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COBOK</title>
+    <link rel="stylesheet" href="{% static 'css/index.css' %}">
+    <link rel="stylesheet" href="{% static 'css/register.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@200&display=swap" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script>
+        post_url = "{% url 'api-register' %}";
+        csrf = "{{ csrf_token }}";
+    </script>
+    <script src = "{% static 'javascript/register.js' %}"></script>
+</head>
+<body>
+    <div class="nav">
+        <div class="nav_logo">
+            <a href = "/home">
+                <img class = "logo" src="{% static 'image/dogeImg.jpeg' %}" alt="">
+            </a>
+            <a href = "/home" style="color: wheat;">COBOK</a>
+        </div>
+        <ul class="navbar_menu">
+            <li><a href = "/home">Home</a></li>
+            <!-- <li><a href = "../login">Login</a></li> -->
+            <!-- <li><a href = "../sign_up">Register</a></li> -->
+            <!-- <li><a href = "../userpage">UserPage</a></li> -->
+        </ul>
+        <div class="icon">
+            <a href = "https://www.kakaocorp.com/page/service/service/KakaoTalk">
+                <img class = "nav_icon" src="{% static 'image/kakaoimg.png' %}" alt="">
+            </a>
+            <a href="https://twitter.com/?lang=ko">
+                <img class = "nav_icon" src="{% static 'image/twiterimg.png' %}" alt="">
+            </a>
+        </div>
+    </div>
+    <div class="container">
+        <div id = "wrap">
+            <form class = "login_form" target="param">
+                <h1>Register</h1>
+               
+                <label for="id" id = "user_id"> ID</label>
+                <input type = "id" id = "id" placeholder=""><br>
+                <label for="password"> Password </label>
+                <input type = "password" id = "password" placeholder=""><br>
+                <label for="re_password"> RePassword</label>
+                <input type = "password" id = "re_password" placeholder=""><br>
+                <label for="user_name"> UserName</label>
+                <input type = "user_name" id = "user_name" placeholder=""><br>
+                <label for="birth"> Birth</label>
+                <input type = "birth" id = "birth" placeholder=""><br>
+                <label for="email"> Email</label>
+                <input type = "email" id = "email" placeholder=""><br>
+                <label for="user_name"> PhoneNumber</label>
+                <input type = "phone_number" id = "phone_number" placeholder=""><br>
+                <label for="user_name"> ApiKey</label>
+                <input type = "api_key" id = "api_key" placeholder=""><br>
+                <label for="user_name"> SecKey</label>
+                <input type = "sec_key" id = "sec_key" placeholder=""><br>
+                <button id = "submit" type="submit" onclick="clickevent();">Submit</button>
+            </form>
+            <iframe id="if" name="param" style="display:none;"></iframe>
+            <div class="wrap_contents">
+                <a href = "">Register</a>
+                <a href = "">Forgot ID?</a>
+                <a href = "">Forgot Password?</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
