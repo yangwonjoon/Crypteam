@@ -44,7 +44,16 @@ const BackTesting = () => {
         </div>
 
         <div className="form-group">
-          <button onClick={() => setShowModal(true)}>Show Modal</button>
+          <button onClick={() => setShowModal(true)}>
+            parameter
+          </button>
+          {
+            showModal == true ? <Parameter
+            showModal={showModal}
+            onClose={handleModalClose}
+            setParameter={setParameter}
+            /> : null
+          }
         </div>
 
         <div className="form-group">
@@ -74,12 +83,6 @@ const BackTesting = () => {
           <pre>{result}</pre>
         </div>
       </form>
-
-      <Parameter
-        showModal={showModal}
-        onClose={handleModalClose}
-        setParameter={setParameter}
-      />
     </div>
   );
 };
