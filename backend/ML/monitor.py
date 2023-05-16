@@ -1,13 +1,13 @@
 import pandas as pd
-from ML.DataScaler import Data_StandardScaler
-from ML.DB_Manage import DB_Bot
-from ML.Indicator import DataManage
-from ML.Network import ensembleModel
-from ML.DataLabeling import DataLabeling
-from ML.createImage import LabelingImg
-from ML.backtest import backtest
+from DataScaler import Data_StandardScaler
+from DB_Manage import DB_Bot
+from Indicator import DataManage
+from Network import ensembleModel
+from DataLabeling import DataLabeling
+from createImage import LabelingImg
+from backtest import backtest
 import json
-def start_bot(coin_name, parameter,term, test_size, ImgPath = "ML_Result"):
+def start_bot(coin_name, parameter,term, test_size):
     
     """
     함수실행은 웹페이지에서 백테스트 시작 버튼누르면 함수 실행
@@ -47,9 +47,6 @@ def start_bot(coin_name, parameter,term, test_size, ImgPath = "ML_Result"):
     test_size(int) ex)
     -> 1440 * 30 (30days)
 
-    이거는 신경 안써도됨
-    ImgPath(str) ex)
-    -> "ML_Result"
     """
 
     # get data
@@ -106,4 +103,5 @@ def start_bot(coin_name, parameter,term, test_size, ImgPath = "ML_Result"):
     for i in backtest_result:
         print(i,":",round(backtest_result[i],2))
 
+    model.DNNModel.model.save("DNN_Model.h5")
     return json.dumps(backtest_result)
