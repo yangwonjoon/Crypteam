@@ -15,8 +15,9 @@ from ML.DataLabeling import DataLabeling
 from ML.createImage import LabelingImg
 from ML.backtest import backtest
 from ML.monitor import start_bot
-
-class StartView(APIView):
+from ML.AutoTrading import Trading
+from ML.Simulated_Investment import Simulated_Start
+class BacktestingView(APIView):
     def post(self, request):
         coin_name = request.data.get('coin_name')
         parameter = request.data.get('parameter')
@@ -25,3 +26,17 @@ class StartView(APIView):
     
         return Response(start_bot(coin_name, parameter, term, test_size))
     
+class AutoTradingView(APIView):
+    def post(self, request):
+        api_key = request.data.get('api_key')
+        secret = request.data.get('secret')
+        symbol = request.data.get('symbol')
+        leverage = int(request.data.get('leverage'))
+    
+        return Response(Trading(api_key, secret, symbol, leverage))
+    
+class SimulateTradingView(APIView):
+    def post(self, request):
+        symbol = request.data.get('symbol')
+    
+        return Response(Simulated_Start(symbol))

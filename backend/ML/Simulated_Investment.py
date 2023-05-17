@@ -1,10 +1,10 @@
 import time
 import ccxt
 import numpy as np
-from Indicator import DataManage
-from DataScaler import Data_StandardScaler
+from ML.Indicator import DataManage
+from ML.DataScaler import Data_StandardScaler
 from sklearn.preprocessing import StandardScaler
-from DB_Manage import DB_Bot
+from ML.DB_Manage import DB_Bot
 import pandas as pd
 from keras.models import load_model
 
@@ -102,13 +102,21 @@ def bot(symbol,name, timeframe, model, trade_history):
     line.append(round((data.iloc[-1]['close'] - Account["average_price"])/data.iloc[-1]['close'] * 100,2))
     trade_history.append(line)
     time.sleep(5)
+    return {
+      "time" : now_time,
+      "price" : data.iloc[-1]['close'],
+      "amount" : Account["amount"], 
+      "average_price" : Account['average_price'],
+      "ROE" : round((data.iloc[-1]['close'] - Account["average_price"])/data.iloc[-1]['close'] * 100,2),
+      "pred" : int(pred[-2][0]),
+      "yeild" : Account["result"]
+    }
 
-
-def Trading(symbol):
+def Simulated_Start(symbol):
     '''
         symbol = "ETC_USDT_1m"
     '''
-    model = load_model("DNN_Model.h5")
+    model = load_model("backend/ML/DNN_Model.h5")
     trade_history = []
 
 
@@ -116,4 +124,4 @@ def Trading(symbol):
     timeframe = temp[2]
     name = temp[0] + "/" + temp[1]
 
-    bot(symbol,name, timeframe, model, trade_history)
+    return bot(symbol,name, timeframe, model, trade_history)

@@ -1,10 +1,10 @@
 import time
 import ccxt
 import numpy as np
-from Indicator import DataManage
-from DataScaler import Data_StandardScaler
+from ML.Indicator import DataManage
+from ML.DataScaler import Data_StandardScaler
 from sklearn.preprocessing import StandardScaler
-from DB_Manage import DB_Bot
+from ML.DB_Manage import DB_Bot
 import pandas as pd
 from keras.models import load_model
 
@@ -109,7 +109,15 @@ def bot(binance, symbol,name, timeframe, model, trade_history):
     line.append(round((data.iloc[-1]['close'] - Account["average_price"])/data.iloc[-1]['close'] * 100,2))
     trade_history.append(line)
     time.sleep(5)
-
+    return{
+      "time" : now_time,
+      "price" : data.iloc[-1]['close'],
+      "amount" : Account["amount"], 
+      "average_price" : Account['average_price'],
+      "ROE" : round((data.iloc[-1]['close'] - Account["average_price"])/data.iloc[-1]['close'] * 100,2),
+      "pred" : int(pred[-2][0]),
+      "yeild" : Account["result"]
+    }
 
 def Trading(api_key, secret, symbol, leverage):
     '''
@@ -118,7 +126,7 @@ def Trading(api_key, secret, symbol, leverage):
         symbol = "ETC_USDT_1m"
         leverage = 10
     '''
-    model = load_model("DNN_Model.h5")
+    model = load_model("backend/ML/DNN_Model.h5")
     trade_history = []
 
     binance = ccxt.binance(config={
@@ -139,4 +147,4 @@ def Trading(api_key, secret, symbol, leverage):
         'symbol': market['id'],
         'leverage': leverage
     })
-    bot(binance, symbol,name, timeframe, model, trade_history)
+    return bot(binance, symbol,name, timeframe, model, trade_history)
