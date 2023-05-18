@@ -20,4 +20,6 @@ from user.views import *
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('user.urls')),
+    path('api/', include('bot.urls')),
+    path('api/', include('NewsData.urls')),
 ]

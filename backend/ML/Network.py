@@ -8,8 +8,8 @@ import tensorflow as tf
 from tqdm import tqdm
 from sklearn.linear_model import LogisticRegression
 from xgboost import XGBClassifier
-from Indicator import *
-from DataScaler import *
+# from Indicator import *
+# from DataScaler import *
 
 class Network:
     def __init__(self,input_dim = 0, output_dim = 0, lr = 0.001,

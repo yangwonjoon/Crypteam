@@ -1,0 +1,14 @@
+.container {
+    display: flex;
+    justify-content: center;
+    padding: 20px 0;
+  }
+  
+  .notice-section {
+    width: 70%;
+  }
+  
+  .category-section {
+    width: 30%;
+  }
+  

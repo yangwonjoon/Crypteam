@@ -1,19 +1,39 @@
 import pandas as pd
-from DataScaler import Data_StandardScaler
-from DB_Manage import DB_Bot
-from Indicator import DataManage
-from Network import ensembleModel
-from DataLabeling import DataLabeling
-from createImage import LabelingImg
-from backtest import backtest
-def start_bot(coin_name, parameter,term, test_size, ImgPath):
+from ML.DataScaler import Data_StandardScaler
+from ML.DB_Manage import DB_Bot
+from ML.Indicator import DataManage
+from ML.Network import ensembleModel
+from ML.DataLabeling import DataLabeling
+from ML.createImage import LabelingImg
+from ML.backtest import backtest
+import json
+def dic_to_list(dic):
+    parameter = []
+    for i in dic.keys():
+        print(i, dic[i])
+        temp = {i:{"period" : int(dic[i]) }}
+        parameter.append(temp)
     
+    return parameter
+def start_bot(coin_name, parameter,term, test_size):
+    parameter = dic_to_list(parameter)
     """
-    coin_name : ex) BTC_USDT_1m 
+    함수실행은 웹페이지에서 백테스트 시작 버튼누르면 함수 실행
+    -> 결과 출력
+    form = {
+        
+    }
+
+    BTC(코인이름 입력) + '_USDT' + 1m(시간봉 입력)
+    coin_name : ex) BTC_USDT_1m
     -> BTC : Coin 축약어, USTD : 고정, 1m : timeframe(1m, 3m, 5m, 15m, ...1d)
 
     parameter ex)
     ```python
+
+    보조지표 선택할 수 있게 체크박스 식으로 체크할수 있게 입력받아야한다.
+    보조지표 입력받으면 해당 보조지표마다 파라미터(ex period)추가 입력받을 수 있게 입력창
+    일단 밑에 5개만 테스트
     parameter = [
             {"rsi" : {"period" : 14}},
             {"ma" : {"period" : 7}},
@@ -26,14 +46,15 @@ def start_bot(coin_name, parameter,term, test_size, ImgPath):
             {"macd" : {"fast_period": 12, "slow_period" : 26}}
     ]
     ```
+
+    숫자  입력 받으면 됨
     term(int) ex)
     -> 120
 
+    숫자 입력 받으면 됨
     test_size(int) ex)
     -> 1440 * 30 (30days)
 
-    ImgPath(str) ex)
-    -> "ML_Result"
     """
 
     # get data
@@ -89,3 +110,6 @@ def start_bot(coin_name, parameter,term, test_size, ImgPath):
     """
     for i in backtest_result:
         print(i,":",round(backtest_result[i],2))
+
+    model.DNNModel.model.save("DNN_Model.h5")
+    return json.dumps(backtest_result)

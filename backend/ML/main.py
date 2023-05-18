@@ -6,4 +6,4 @@ if __name__ == '__main__':
             {"kdj" : {}},
             {"macd" : {"fast_period": 12, "slow_period" : 26}}
     ]
-    start_bot("ETH_USDT_15m", parameter, 60, 96 * 180, "ML_Result")
+    start_bot("ETH_USDT_30m", parameter, 60, 96 * 180)
