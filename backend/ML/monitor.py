@@ -7,8 +7,16 @@ from ML.DataLabeling import DataLabeling
 from ML.createImage import LabelingImg
 from ML.backtest import backtest
 import json
-def start_bot(coin_name, parameter,term, test_size):
+def dic_to_list(dic):
+    parameter = []
+    for i in dic.keys():
+        print(i, dic[i])
+        temp = {i:{"period" : int(dic[i]) }}
+        parameter.append(temp)
     
+    return parameter
+def start_bot(coin_name, parameter,term, test_size):
+    parameter = dic_to_list(parameter)
     """
     함수실행은 웹페이지에서 백테스트 시작 버튼누르면 함수 실행
     -> 결과 출력

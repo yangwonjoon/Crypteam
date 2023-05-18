@@ -20,8 +20,8 @@ class BacktestingView(APIView):
     def post(self, request):
         coin_name = request.data.get('coin_name')
         parameter = request.data.get('parameter')
-        term = request.data.get('term')
-        test_size = request.data.get('test_size')
+        term = int(request.data.get('term'))
+        test_size = int(request.data.get('test_size'))
     
         return Response(start_bot(coin_name, parameter, term, test_size))
     

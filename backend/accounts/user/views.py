@@ -11,7 +11,7 @@ from rest_framework.permissions import IsAuthenticated
 
 '''
 {
-"email" :" test@naver.com",
+ "email" :" test@naver.com",
  "password" : "12345",
  "user_name" : "유현석",
  "birth" : "1999-02-26",

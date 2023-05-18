@@ -137,8 +137,10 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ORIGIN_WHITELIST = [
+    'http://localhost:3000',
     'http://localhost:3001',
     'http://localhost:8080',
+    'http://localhost:8000',
 ]
 
 # 추가적인 JWT 설정, 다 쓸 필요는 없지만 혹시 몰라서 다 넣었다.
