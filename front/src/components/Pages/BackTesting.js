@@ -3,24 +3,28 @@ import React, { useState, useEffect, useRef } from "react";
 import { createChart, CrosshairMode } from "lightweight-charts";
 import {Paper, Grid, Modal, Button, FormControl, InputLabel, MenuItem, Select, TextField, Typography } from "@mui/material";
 import { styled } from "@mui/system";
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 import "../../css/Backtesting.css";
 
 const BackTesting = () => {
   const chartContainerRef = useRef(null);
   const chartInstanceRef = useRef(null);
   const [coinName, setCoinName] = useState("");
+  const [timeFrame, setTimeFrame] = useState("");
   const [rsi, setRsi] = useState("");
   const [ma, setMa] = useState("");
   const [ema, setEma] = useState("");
   const [term, setTerm] = useState("");
-  const [testSize, setTestSize] = useState("");
+  //const [testSize, setTestSize] = useState("");
+  const [startDate, setStartDate] = useState(null);
   const [result, setResult] = useState("");
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     // 차트 생성
     const chart = createChart(chartContainerRef.current, {
-      width: 800,
+      width: 700,
       height: 400,
       crosshair: {
         mode: CrosshairMode.Normal,
@@ -43,9 +47,11 @@ const BackTesting = () => {
     e.preventDefault();
     const formData = {
       coin_name: coinName,
+      timeFrame : timeFrame,
       parameter: { rsi, ma, ema },
       term,
-      test_size: testSize,
+      start_date: startDate,
+      // test_size: testSize,
     };
     const url = "http://127.0.0.1:8000/api/start_bot/";
     axios
@@ -61,16 +67,22 @@ const BackTesting = () => {
 
     // 상태 초기화
     setCoinName("");
+    setTimeFrame("");
     setRsi("");
     setMa("");
     setEma("");
     setTerm("");
-    setTestSize("");
+    setStartDate("");
+    //setTestSize("");
     setResult([]); // 초기화: 빈 배열로 설정
   };
 
   const handleCoinChange = (e) => {
     setCoinName(e.target.value);
+  };
+
+  const handleTimeframeChange = (e) => {
+    setTimeFrame(e.target.value);
   };
 
   const handleParameterClick = () => {
@@ -116,6 +128,7 @@ const ModalContent = styled("div")`
                     onChange={handleCoinChange}
                     displayEmpty
                     inputProps={{ "aria-label": "Select Coin" }}
+                    style={{ width: "200px" }}
                   >
                     <MenuItem value="">
                       <em>Choose a coin</em>
@@ -129,40 +142,73 @@ const ModalContent = styled("div")`
                 </FormControl>
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                <label htmlFor="timeframe">분봉 선택:</label>
+                <FormControl>
+                  <Select
+                    id="timeframe"
+                    value={timeFrame}
+                    onChange={handleTimeframeChange}
+                    displayEmpty
+                    inputProps={{ "aria-label": "Timeframe" }}
+                    style={{ width: "200px" }}
+                  >
+                    <MenuItem value="">
+                      <em>Choose timeframe</em>
+                    </MenuItem>
+                    <MenuItem value="1m">1분</MenuItem>
+                    <MenuItem value="3m">3분</MenuItem>
+                    <MenuItem value="5m">5분</MenuItem>
+                    <MenuItem value="15m">15분</MenuItem>
+                    <MenuItem value="30m">30분</MenuItem>
+                    <MenuItem value="1h">1시간</MenuItem>
+                    <MenuItem value="4h">4시간</MenuItem>
+                    <MenuItem value="1d">1일</MenuItem>
+                  </Select>
+                </FormControl>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                 <label htmlFor="term">기간:</label>
                 <TextField
                   type="number"
                   id="term"
                   value={term}
                   onChange={(e) => setTerm(e.target.value)}
+                  style={{ width: "200px" }}
+                />
+              </div>
+              
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                <label htmlFor="startDate">시작 날짜:</label>
+                <DatePicker
+                  id="startDate"
+                  selected={startDate}
+                  onChange={(date) => setStartDate(date)}
+                  dateFormat="yyyy-MM-dd"
+                  placeholderText="날짜 선택"
                 />
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                <label htmlFor="testSize">시작 날짜:</label>
-                <TextField
-                  type="number"
-                  id="testSize"
-                  value={testSize}
-                  onChange={(e) => setTestSize(e.target.value)}
-                />
-              </div>
-              <div style={{ display: "flex", alignItems: "flex-end", gap: "8px" }}>
-                <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                   <Button type="button" variant="contained" color="success" onClick={handleParameterClick}>
                     ADD Parameter
                   </Button>
+                  </div>
+                  <div>
                   <Button type="submit" variant="contained" color="success">
                     Start Bot
                   </Button>
                 </div>
+              <div style={{ display: "flex", alignItems: "flex-end", gap: "8px" }}>
+                
               </div>
             </form>
-
+            
+            <Paper sx={{ padding: 2 ,marginTop: "26px"}}>
             <div>
               <label htmlFor="result">Result</label>
-              <ChartContainer ref={chartContainerRef} className="chart-container" />
+              <ChartContainer ref={chartContainerRef}  />
               {/* <pre>{JSON.stringify(result)}</pre> */}
             </div>
+            </Paper>
 
             <StyledModal open={showModal} onClose={() => setShowModal(false)}>
               <ModalContent>
