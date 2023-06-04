@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import '../../css/AutoTrading.css'
+import {Form,Button} from 'react-bootstrap';
 
 function AutoTrading() {
 
@@ -30,28 +32,34 @@ function AutoTrading() {
 
     return (
     <>
-        <form onSubmit={handleSubmit}>
-            <label>
-            API Key:
-            <input type="text" value={apiKey} onChange={(e) => setApiKey(e.target.value)} />
-            </label>
-            <label>
-            Secret:
-            <input type="text" value={secret} onChange={(e) => setSecret(e.target.value)} />
-            </label>
-            <label>
-            Symbol:
-            <input type="text" value={symbol} onChange={(e) => setSymbol(e.target.value)} />
-            </label>
-            <label>
-            Leverage:
-            <input type="text" value={leverage} onChange={(e) =>  setLeverage(e.target.value)} />
-            </label>
-            <button type="submit">시작</button>
-        </form>
+        <Form onSubmit={handleSubmit} className="autoform">
+        <Form.Group controlId="apiKey">
+            <Form.Label>API Key: </Form.Label>
+            <Form.Control type="text" value={apiKey} onChange={(e) => setApiKey(e.target.value)} />
+        </Form.Group>
+
+        <Form.Group controlId="secret">
+            <Form.Label>Secret: </Form.Label>
+            <Form.Control type="text" value={secret} onChange={(e) => setSecret(e.target.value)} />
+        </Form.Group>
+
+        <Form.Group controlId="symbol">
+            <Form.Label>Symbol: </Form.Label>
+            <Form.Control type="text" value={symbol} onChange={(e) => setSymbol(e.target.value)} />
+        </Form.Group>
+
+        <Form.Group controlId="leverage">
+            <Form.Label>Leverage: </Form.Label>
+            <Form.Control type="text" value={leverage} onChange={(e) => setLeverage(e.target.value)} />
+        </Form.Group>
+
+        <Button variant="primary" type="submit">
+            시작
+        </Button>
+        </Form>
 
         {data ? (
-        <div>
+        <div className='autoresult'>
             <p>현재 time: <span>{data.time}</span></p>
             <p>현재 가격: <span>{data.price}</span></p>
             <p>현재 수량: <span>{data.amount}</span></p>
@@ -62,7 +70,7 @@ function AutoTrading() {
         </div>
         ) : (
 
-        <p>로딩중,,</p>
+        <p className='autoresult'>로딩중,,</p>
         )}
     
     </>
