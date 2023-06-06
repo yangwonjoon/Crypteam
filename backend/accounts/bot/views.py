@@ -17,6 +17,11 @@ from ML.monitor import start_bot
 from ML.AutoTrading import Trading
 from ML.Simulated_Investment import Simulated_Start
 import pandas as pd
+def DataFrame_to_Json(data):
+    result = {}
+    for i in range(len(data)):
+        result[str(i)] = {"time" : data.iloc[i]["datetime"], "open" : data.iloc[i]["open"], "high" : data.iloc[i]["high"], "low" : data.iloc[i]["low"], "close" : data.iloc[i]["close"]}
+    return result
 class BacktestingView(APIView):
     def post(self, request):
         coin_name = request.data.get('coin_name')
@@ -52,6 +57,11 @@ class AutoTradingView(APIView):
         return Response(response_data, status=200)
     
 class SimulateTradingView(APIView):
+
+    def get(self,request):
+        data = DB_Bot("BTC_USDT_1d").GetData()
+        return Response(DataFrame_to_Json(data))
+    
     def post(self, request):
         symbol = request.data.get('symbol')
     
