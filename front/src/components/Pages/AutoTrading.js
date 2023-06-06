@@ -12,27 +12,30 @@ function AutoTrading() {
     const [intervalId, setIntervalId] = useState(null);
 
     const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    try {
-        const response = await axios.post('http://127.0.0.1:8000/api/AutoTrading/', {
-        api_key: apiKey,
-        secret: secret,
-        symbol: symbol,
-        leverage: leverage
+        e.preventDefault(); 
+        try {
+            const response = await axios.post('http://127.0.0.1:8000/api/AutoTrading/', {
+            api_key: apiKey,
+            secret: secret,
+            symbol: symbol,
+            leverage: leverage
         });
 
-        setData(response.data);
+        setData([response.data]); // POST 요청 응답 데이터를 배열에 담아 설정합니다.
 
         // 시작 버튼을 눌렀을 때 5초마다 자동으로 GET 요청을 보내기 위해 setInterval을 설정합니다.
         const id = setInterval(async () => {
+        try {
             const result = await axios.get('http://127.0.0.1:8000/api/AutoTrading/');
-            setData(result.data);
+              setData(data => [...data, result.data]); // GET 요청 결과 데이터를 배열에 추가합니다.
+            } catch (error) {
+            console.error(error);
+            }
         }, 5000);
-        setIntervalId(id);
-    } catch (error) {
-        console.error(error);
-    }
+            setIntervalId(id);
+        } catch (error) {
+            console.error(error);
+        }
     };
 
     const handleStop = () => {
