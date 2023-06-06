@@ -87,9 +87,9 @@ WSGI_APPLICATION = 'accounts.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'user',
+        'NAME': 'cryteam',
         "USER" : 'root',
-        "PASSWORD" : "825582qaz",
+        "PASSWORD" : "jspbook",
         "HOST" : "127.0.0.1",
         "PORT" : "3306",
     }
