@@ -15,7 +15,14 @@ const Chart = () => {
       .then((response) => {
         let obj = response.data;
         const temp = Object.values(obj);
-        setData(temp);
+        const transformedData = temp.map((item) => ({
+          time: Date.parse(item.time) / 1000,
+          open:item.open,
+          high:item.high,
+          low:item.low,
+          close:item.close,
+        }));
+        setData(transformedData);
         setIsLoading(false);
       })
       .catch((error) => {
