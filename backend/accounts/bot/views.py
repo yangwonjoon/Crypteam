@@ -16,6 +16,7 @@ from ML.backtest import backtest
 from ML.monitor import start_bot
 from ML.AutoTrading import Trading
 from ML.Simulated_Investment import Simulated_Start
+import pandas as pd
 class BacktestingView(APIView):
     def post(self, request):
         coin_name = request.data.get('coin_name')
@@ -26,6 +27,17 @@ class BacktestingView(APIView):
         return Response(start_bot(coin_name, parameter, term, test_size))
     
 class AutoTradingView(APIView):
+    def get(self,request):
+        data = pd.read_csv("/Users/yuhyeonseog/졸작 연구/git/Crypteam-4/backend/accounts/trading_data.csv", index_col = 0)
+        Response({
+        "time" : data.iloc[-1]["time"],
+        "price" : data.iloc[-1]['price'],
+        "amount" : data.iloc[-1]['amount'], 
+        "average_price" :data.iloc[-1]['average_price'],
+        "ROE" : data.iloc[-1]['ROE'],
+        "pred" : data.iloc[-1]['pred'],
+        "yeild" : data.iloc[-1]['yeild']
+        })
     def post(self, request):
         api_key = request.data.get('api_key')
         secret = request.data.get('secret')

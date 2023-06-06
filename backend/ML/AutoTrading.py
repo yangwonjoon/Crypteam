@@ -109,15 +109,8 @@ def bot(binance, symbol,name, timeframe, model, trade_history):
     line.append(round((data.iloc[-1]['close'] - Account["average_price"])/data.iloc[-1]['close'] * 100,2))
     trade_history.append(line)
     time.sleep(5)
-    return{
-      "time" : now_time,
-      "price" : data.iloc[-1]['close'],
-      "amount" : Account["amount"], 
-      "average_price" : Account['average_price'],
-      "ROE" : round((data.iloc[-1]['close'] - Account["average_price"])/data.iloc[-1]['close'] * 100,2),
-      "pred" : int(pred[-2][0]),
-      "yeild" : Account["result"]
-    }
+    temp = [[now_time, data.iloc[-1]['close'], Account["amount"], Account['average_price'], round((data.iloc[-1]['close'] - Account["average_price"])/data.iloc[-1]['close'] * 100,2), int(pred[-2][0]), Account["result"]]]
+    pd.DataFrame(temp, columns=["time", "price", "amount", "average_price", "ROE", "pred", "yeild"]).to_csv("trading_data.csv")
 
 def Trading(api_key, secret, symbol, leverage):
     '''
@@ -126,7 +119,7 @@ def Trading(api_key, secret, symbol, leverage):
         symbol = "ETC_USDT_1m"
         leverage = 10
     '''
-    model = load_model("backend/ML/DNN_Model.h5")
+    model = load_model("../ML/DNN_Model.h5")
     trade_history = []
 
     binance = ccxt.binance(config={

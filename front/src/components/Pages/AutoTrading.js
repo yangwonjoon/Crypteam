@@ -15,7 +15,7 @@ function AutoTrading() {
     e.preventDefault();
 
     try {
-        const response = await axios.post('http://127.0.0.1:8000/api/AutoTradingView/', {
+        const response = await axios.post('http://127.0.0.1:8000/api/AutoTrading/', {
         api_key: apiKey,
         secret: secret,
         symbol: symbol,
@@ -26,7 +26,7 @@ function AutoTrading() {
 
         // 시작 버튼을 눌렀을 때 5초마다 자동으로 GET 요청을 보내기 위해 setInterval을 설정합니다.
         const id = setInterval(async () => {
-            const result = await axios.get('http://127.0.0.1:8000/api/AutoTradingResult/');
+            const result = await axios.get('http://127.0.0.1:8000/api/AutoTrading/');
             setData(result.data);
         }, 5000);
         setIntervalId(id);
