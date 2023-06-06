@@ -29,8 +29,7 @@ class BacktestingView(APIView):
 class AutoTradingView(APIView):
 
     def get(self,request):
-        data = pd.read_csv("/Users/yuhyeonseog/졸작 연구/git/Crypteam-4/backend/accounts/trading_data.csv", index_col = 0)
-        print("GET")
+        data = pd.read_csv("../accounts/trading_data.csv", index_col = 0)
         return Response({
         "time" : data.iloc[-1]["time"],
         "price" : data.iloc[-1]['price'],
