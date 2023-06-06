@@ -24,7 +24,7 @@ function AutoTrading() {
 
         setData(response.data);
 
-        // 시작 버튼을 눌렀을 때 5초마다 자동으로 GET 요청을 보내기 위해 setInterval을 설정합니다.
+        // 시작 버튼을 눌렀을 때 5초마다 자동으로 GET 요청
         const id = setInterval(async () => {
             const result = await axios.get('http://127.0.0.1:8000/api/AutoTrading/');
             setData(result.data);
@@ -36,13 +36,13 @@ function AutoTrading() {
     };
 
     const handleStop = () => {
-    // 중단 버튼을 눌렀을 때 setInterval을 중지합니다.
+    // 중단 버튼을 눌렀을 때 setInterval을 중지
     clearInterval(intervalId);
     };
 
     useEffect(() => {
         return () => {
-        // 컴포넌트가 언마운트될 때 setInterval을 정리합니다.
+        // setInterval을 정리
         clearInterval(intervalId);
     };
     }, [intervalId]);
@@ -79,18 +79,21 @@ function AutoTrading() {
             중단
         </Button>
 
-        {data ? (
-            <div className='autoresult'>
-                <p>현재 time: <span>{data.time}</span></p>
-                <p>현재 가격: <span>{data.price}</span></p>
-                <p>현재 수량: <span>{data.amount}</span></p>
-                <p>현재 평단가: <span>{data.average_price}</span></p>
-                <p>현재 수익률: <span>{data.ROE}%</span></p>
-                <p>현재 추세 예측(): <span>{data.pred}</span></p>
-                <p>수익: <span>{data.yeild}</span></p>
+        {data.length > 0 ? (
+        data.map((result, index) => (
+            <div className='autoresult' key={index}>
+                <p>현재 time: <span>{result.time}</span></p>
+                <p>현재 가격: <span>{result.price}</span></p>
+                <p>현재 수량: <span>{result.amount}</span></p>
+                <p>현재 평단가: <span>{result.average_price}</span></p>
+                <p>현재 수익률: <span>{result.ROE}%</span></p>
+                <p>현재 추세 예측: <span>{result.pred}</span></p>
+                <p>수익: <span>{result.yeild}</span></p>
             </div>
+        ))
+
         ) : (
-            <p className='autoresult'>로딩중,,</p>
+            <p className='autoresult'>로딩중...</p>
         )}
     </>
     );
