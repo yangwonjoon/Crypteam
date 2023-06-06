@@ -45,7 +45,11 @@ class AutoTradingView(APIView):
         secret = request.data.get('secret')
         symbol = request.data.get('symbol')
         leverage = int(request.data.get('leverage'))
-        return Response(Trading(api_key, secret, symbol, leverage))
+        Trading(api_key, secret, symbol, leverage)
+        response_data = {
+            'message': 'Success',
+        }
+        return Response(response_data, status=200)
     
 class SimulateTradingView(APIView):
     def post(self, request):
