@@ -22,7 +22,7 @@ function AutoTrading() {
         });
 
         setData([response.data]); // POST 요청 응답 데이터를 배열에 담아 설정합니다.
-
+        console.log(response.data);
         // 시작 버튼을 눌렀을 때 5초마다 자동으로 GET 요청을 보내기 위해 setInterval을 설정합니다.
         const id = setInterval(async () => {
         try {
