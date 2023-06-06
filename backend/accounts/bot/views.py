@@ -27,9 +27,10 @@ class BacktestingView(APIView):
         return Response(start_bot(coin_name, parameter, term, test_size))
     
 class AutoTradingView(APIView):
+
     def get(self,request):
-        data = pd.read_csv("/Users/yuhyeonseog/졸작 연구/git/Crypteam-4/backend/accounts/trading_data.csv", index_col = 0)
-        Response({
+        data = pd.read_csv("../accounts/trading_data.csv", index_col = 0)
+        return Response({
         "time" : data.iloc[-1]["time"],
         "price" : data.iloc[-1]['price'],
         "amount" : data.iloc[-1]['amount'], 
@@ -38,12 +39,12 @@ class AutoTradingView(APIView):
         "pred" : data.iloc[-1]['pred'],
         "yeild" : data.iloc[-1]['yeild']
         })
+
     def post(self, request):
         api_key = request.data.get('api_key')
         secret = request.data.get('secret')
         symbol = request.data.get('symbol')
         leverage = int(request.data.get('leverage'))
-    
         return Response(Trading(api_key, secret, symbol, leverage))
     
 class SimulateTradingView(APIView):
