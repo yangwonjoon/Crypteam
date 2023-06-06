@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import '../../css/AutoTrading.css'
 import { Form, Button } from 'react-bootstrap';
@@ -10,6 +10,7 @@ function AutoTrading() {
     const [leverage, setLeverage] = useState('');
     const [data, setData] = useState([]);
     const [intervalId, setIntervalId] = useState(null);
+    const resultContainerRef = useRef(null);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -30,6 +31,7 @@ function AutoTrading() {
             try {
                 const result = await axios.get('http://127.0.0.1:8000/api/AutoTrading/');
                 setData(prevData => [...prevData, result.data]); // GET 요청 결과 데이터를 배열에 추가합니다.
+                scrollToBottom();
             } catch (error) {
                 console.error(error);
             }
@@ -52,8 +54,17 @@ useEffect(() => {
     };
 }, [intervalId]);
 
+//스크롤 맨 아래로
+const scrollToBottom = () => { 
+    if (resultContainerRef.current) {
+        resultContainerRef.current.scrollTop = resultContainerRef.current.scrollHeight;
+    }
+};
+
 return (
     <>
+    <div className='auto-container'>
+        <div className='form-container'>
         <Form onSubmit={handleSubmit} className="autoform">
             <Form.Group controlId="apiKey">
                 <Form.Label>API Key: </Form.Label>
@@ -79,10 +90,12 @@ return (
                 시작
             </Button>
         </Form>
+        </div>
         <Button variant="danger" className="autostop" onClick={handleStop}>
             중단
         </Button>
 
+        <div className='result-container' ref={resultContainerRef}>
         {data.length > 0 ? (
             data.map((result, index) => (
                 <div className='autoresult' key={index}>
@@ -98,6 +111,8 @@ return (
         ) : (
             <p className='autoresult'>로딩중…</p>
         )}
+        </div>
+    </div>
     </>
 );
 }

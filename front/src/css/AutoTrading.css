@@ -1,4 +1,20 @@
-.autoform, .autoresult, autostop{
+.auto-container {
+  display: flex;
+}
+
+.form-container {
+  flex: 1;
+}
+
+.result-container {
+  flex: 1;
+  overflow-y: scroll;
+  max-height: 350px;
+}
+
+.autoform,
+.autoresult,
+.autostop {
   text-align: center;
   margin: 20px;
   padding: 20px;
