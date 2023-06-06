@@ -87,9 +87,9 @@ WSGI_APPLICATION = 'accounts.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'cryteam',
+        'NAME': 'CoinData',
         "USER" : 'root',
-        "PASSWORD" : "jspbook",
+        "PASSWORD" : "825582qaz",
         "HOST" : "127.0.0.1",
         "PORT" : "3306",
     }
