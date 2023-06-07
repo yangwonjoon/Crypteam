@@ -25,10 +25,12 @@ def DataFrame_to_Json(data):
 class BacktestingView(APIView):
     def post(self, request):
         coin_name = request.data.get('coin_name')
+        timeframe = request.data.get("timeFrame")
         parameter = request.data.get('parameter')
         term = int(request.data.get('term'))
-        test_size = int(request.data.get('test_size'))
-    
+        test_size = request.data.get('start_date')
+        test_size = test_size[:10]
+        coin_name = coin_name + "_USDT_" + timeframe
         return Response(start_bot(coin_name, parameter, term, test_size))
     
 class AutoTradingView(APIView):

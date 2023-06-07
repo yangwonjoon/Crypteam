@@ -1,11 +1,12 @@
 import axios from "axios";
 import React, { useState, useEffect, useRef } from "react";
 import { createChart, CrosshairMode } from "lightweight-charts";
-import {Paper, Grid, Modal, Button, FormControl, InputLabel, MenuItem, Select, TextField, Typography } from "@mui/material";
+import {Paper, Grid, Modal, Button, FormControl, MenuItem, Select, TextField, Typography } from "@mui/material";
 import { styled } from "@mui/system";
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import "../../css/Backtesting.css";
+import { Box } from '@mui/material';
 
 const BackTesting = () => {
   const chartContainerRef = useRef(null);
@@ -20,7 +21,8 @@ const BackTesting = () => {
   const [startDate, setStartDate] = useState(null);
   const [result, setResult] = useState("");
   const [showModal, setShowModal] = useState(false);
-
+  const [isLoading, setIsLoading] = useState(true);
+  const [data, setData] = useState(null);
   useEffect(() => {
     // 차트 생성
     const chart = createChart(chartContainerRef.current, {
@@ -42,6 +44,85 @@ const BackTesting = () => {
       chart.remove();
     };
   }, [result]);
+  useEffect(() => {
+    if (!isLoading && data) {
+      if (!chartInstanceRef.current) {
+        chartInstanceRef.current = createChart(chartContainerRef.current, {
+          width: 700,
+          height: 370,
+          crosshair: {
+            mode: CrosshairMode.Normal,
+          },
+        });
+      }
+
+      const chart = chartInstanceRef.current;
+      const candlestickSeries = chart.addCandlestickSeries();
+      candlestickSeries.setData(data);
+
+      const lineSeries = chart.addLineSeries({
+        priceLineVisible: false,
+        lastValueVisible: false,
+        priceLineSource: data[data.length - 1].close,
+        priceLineWidth: 1,
+      });
+
+      lineSeries.applyOptions({
+        priceLineColor: 'rgba(255, 0, 0, 0.8)',
+      });
+
+      const redDots = [data[2], data[7]]; // Example: Sell data points
+      redDots.forEach((dataPoint) => {
+        const series = chart.addLineSeries({
+          lineWidth: 0,
+          color: 'red',
+          priceLineVisible: false,
+        });
+
+        series.setData([
+          { time: dataPoint.time, value: dataPoint.close },
+        ]);
+
+        series.setMarkers([
+          {
+            time: dataPoint.time,
+            position: 'aboveBar',
+            shape: 'circle',
+            size: 1,
+            color: 'red',
+            text: 'sell',
+          },
+        ]);
+      });
+
+      const blueDots = [data[5], data[67]]; // Example: Buy data points
+      blueDots.forEach((dataPoint) => {
+        const series = chart.addLineSeries({
+          lineWidth: 0,
+          color: 'blue',
+          priceLineVisible: false,
+        });
+
+        series.setData([
+          { time: dataPoint.time, value: dataPoint.close },
+        ]);
+
+        series.setMarkers([
+          {
+            time: dataPoint.time,
+            position: 'belowBar',
+            shape: 'circle',
+            size: 1,
+            color: 'blue',
+            text: 'buy',
+          },
+        ]);
+      });
+
+      chart.timeScale().fitContent();
+    }
+  }, [isLoading, data]);
+
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -57,13 +138,32 @@ const BackTesting = () => {
     axios
       .post(url, formData)
       .then((res) => {
-        if (Array.isArray(res.data)) {
-          setResult(res.data);
-        } else {
-          setResult([]);
-        }
+          let obj = res.data;
+          const temp = Object.values(obj);
+          const temp2 = temp.slice(0,-3);
+          const info_data = temp.slice(-3,-1);
+          
+          const data = Object.values(obj).filter(item => typeof item !== 'number');
+
+          const sell = obj.sell;
+          const buy = obj.buy;
+          
+          console.log(data); // [{ time: '2018-10-19 00:01:02', open: 54.62, high: 55.50, low: 54.52, close: 54.90 }]
+          console.log(sell); // [1, 2, 3, 4, 5]
+          console.log(buy); // [1, 2, 3, 4, 5]
+          // console.log(temp,info_data);
+          const transformedData = temp2.map((item) => ({
+            time: Date.parse(item.time) / 1000,
+            open:item.open,
+            high:item.high,
+            low:item.low,
+            close:item.close,}));
+
+          setData(transformedData);
+          setIsLoading(false);
+          setResult(info_data[2]);
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {console.log(err);setIsLoading(false);});
 
     // 상태 초기화
     setCoinName("");
@@ -242,6 +342,19 @@ const ModalContent = styled("div")`
                 </Button>
               </ModalContent>
             </StyledModal>
+            <Box
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+              width="100%"
+              height="100vh"
+            >
+              {isLoading ? (
+                <p>Loading...</p>
+              ) : (
+                <Box ref={chartContainerRef} />
+              )}
+            </Box>
           </Paper>
         </Grid>
       </Grid>

@@ -10,7 +10,6 @@ import json
 def dic_to_list(dic):
     parameter = []
     for i in dic.keys():
-        print(i, dic[i])
         temp = {i:{"period" : int(dic[i]) }}
         parameter.append(temp)
     
@@ -81,8 +80,10 @@ def start_bot(coin_name, parameter,term, test_size):
     print(">> Datascaling & data split...")
     X,Y = data.drop(['label','datetime'],axis = 1),data['label']
     X = Data_StandardScaler(X)
-
-    x_train = X[:-test_size]
+    temp = data.set_index("datetime")
+    temp["id"] = data.index
+    test_size = int(temp.loc[test_size + " 00:00:00"]["id"])
+    x_train = X[:-test_size]   
     y_train = Y[:-test_size]
     x_test = X[-test_size:]
     y_test = Y[-test_size:]
@@ -108,8 +109,8 @@ def start_bot(coin_name, parameter,term, test_size):
         'max_buying': 594,
         'NumberTrading': 370}
     """
-    for i in backtest_result:
-        print(i,":",round(backtest_result[i],2))
+    # for i in backtest_result:
+    #     print(i,":",round(backtest_result[i],2))
 
     model.DNNModel.model.save("DNN_Model.h5")
     return json.dumps(backtest_result)
