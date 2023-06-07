@@ -20,8 +20,85 @@ function AutoTrading() {
     const [high, setHigh] = useState(0);
     const [low, setLow] = useState(0);
     const [close, setClose] = useState(0);
-    
     const candlestickSeriesRef = useRef(null);
+    useEffect(() => {
+        const fetchData = async () => {
+          try {
+            const result = await axios.get('http://127.0.0.1:8000/api/AutoTrading/');
+            setData(prevData => [...prevData, result.data]);
+            scrollToBottom();
+    
+            const temp = Object.values(result.data);
+            const chart_data = temp.slice(7, temp.length);
+            const candlestickSeries = candlestickSeriesRef.current;
+            const updatedData = {
+              time: Date.parse(chart_data[0]) / 1000,
+              open: chart_data[1],
+              high: chart_data[2],
+              low: chart_data[3],
+              close: chart_data[4],
+            };
+            candlestickSeries.update(updatedData);
+          } catch (error) {
+            console.error(error);
+          }
+        };
+    
+        const interval = setInterval(fetchData, 5000);
+    
+        return () => {
+          clearInterval(interval);
+        };
+      }, []);
+    useEffect(() => {
+        const fetchData = async () => {
+          try {
+                const result = await axios.get('http://127.0.0.1:8000/api/AutoTrading/');
+                setData(prevData => [...prevData, result.data]);
+                scrollToBottom();
+                
+                const temp = Object.values(result.data);
+                const chart_data = temp.slice(7,temp.length);
+                const candlestickSeries = candlestickSeriesRef.current;
+                console.log(Date.parse(chart_data[0]) / 1000);
+                const updatedData = {
+                  time: Date.parse(chart_data[0]) / 1000,
+                  open: chart_data[1],
+                  high: chart_data[2],
+                  low: chart_data[3],
+                  close: chart_data[4],
+                };
+                candlestickSeries.update(updatedData);
+              } catch (error) {
+                console.error(error);
+              }
+            };
+    
+        const interval = setInterval(fetchData, 5000);
+    
+        return () => {
+          clearInterval(interval);
+        };
+      }, []);
+      useEffect(() => {
+        const chart = createChart(chartContainerRef.current, {
+          width: 800,
+          height: 400,
+          crosshair: {
+            mode: CrosshairMode.Normal,
+          },
+        });
+    
+        const candlestickSeries = chart.addCandlestickSeries();
+        chartRef.current = chart;
+        candlestickSeriesRef.current = candlestickSeries;
+    
+        return () => {
+          if (chartRef.current) {
+            chartRef.current.remove();
+          }
+        };
+      }, []);
     const handleSubmit = async (e) => {
         e.preventDefault();
         const id = setInterval(async () => {
@@ -32,8 +109,8 @@ function AutoTrading() {
                 // const obj = JSON.parse(result.data);
                 
                 const temp = Object.values(result.data);
-                const chart_data = temp.slice(6,temp.length);
-                console.log(chart_data[0],chart_data[1],chart_data[2],chart_data[3],chart_data[4]);
+                const chart_data = temp.slice(7,temp.length);
+                // console.log(chart_data[0],chart_data[1],chart_data[2],chart_data[3],chart_data[4]);
                 setTime(chart_data[0]);
                 setOpen(chart_data[1]);
                 setHigh(chart_data[2]);
@@ -54,7 +131,7 @@ function AutoTrading() {
         );
 
         setData([response.data]); // POST 요청 응답 데이터를 배열에 담아 설정합니다.
-        console.log(response.data);
+        console.log("eorror",response.data);
         // 시작 버튼을 눌렀을 때 5초마다 자동으로 GET 요청을 보내기 위해 setInterval을 설정합니다.
 
     } catch (error) {
@@ -72,50 +149,7 @@ useEffect(() => {
         clearInterval(intervalId);
     };
 }, [intervalId]);
-useEffect(() => {
-    const fetchData = async () => {
-      try {
-            const candlestickSeries = candlestickSeriesRef.current;
-            console.log(open,high,low,close,time);
-            candlestickSeries.update({
-            time : Date.parse(time) / 1000,
-            open: open,
-            high: high,
-            low: low,
-            close: close,
-          });
-        
-      } catch (error) {
-        console.error(error);
-      }
-    };
 
-    const interval = setInterval(fetchData, 5000);
-
-    return () => {
-      clearInterval(interval);
-    };
-  }, []);
-  useEffect(() => {
-    const chart = createChart(chartContainerRef.current, {
-      width: 800,
-      height: 400,
-      crosshair: {
-        mode: CrosshairMode.Normal,
-      },
-    });
-
-    const candlestickSeries = chart.addCandlestickSeries();
-
-    chartRef.current = chart;
-    candlestickSeriesRef.current = candlestickSeries;
-
-    return () => {
-      if (chartRef.current) {
-        chartRef.current.remove();
-      }
-    };
-  }, []);
 //스크롤 맨 아래로
 const scrollToBottom = () => { 
     if (resultContainerRef.current) {

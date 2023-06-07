@@ -51,6 +51,7 @@ def bot(binance, symbol,name, timeframe, model, trade_history):
 
   print(">> 데이터를 준비하는 중...")
   data = DB_Bot(symbol).GetData()
+  temp1 = str(data.iloc[-1]["datetime"])
   data = data.drop(["datetime"],axis = 1).dropna()
   print(">> 보조지표 생성중...")
   DataManageBot = DataManage(data, parameter = parameter)
@@ -94,7 +95,9 @@ def bot(binance, symbol,name, timeframe, model, trade_history):
       previous_state = now_state
 
     print("==============================================")
+
     print("현재 time:",now_time)
+
     print("현재 가격:",data.iloc[-1]['close'])
     print("현재 수량:",Account["amount"])
     print("현재 평단가:",Account["average_price"])
@@ -109,8 +112,8 @@ def bot(binance, symbol,name, timeframe, model, trade_history):
     line.append(round((data.iloc[-1]['close'] - Account["average_price"])/data.iloc[-1]['close'] * 100,2))
     trade_history.append(line)
     time.sleep(5)
-    temp = [[now_time, data.iloc[-1]['close'], Account["amount"], Account['average_price'], round((data.iloc[-1]['close'] - Account["average_price"])/data.iloc[-1]['close'] * 100,2), int(pred[-2][0]), Account["result"], now_time,data.iloc[-1]["open"], data.iloc[-1]["high"], data.iloc[-1]["low"], data.iloc[-1]["close"]]]
-    pd.DataFrame(temp, columns=["time", "price", "amount", "average_price", "ROE", "pred", "yeild","time","open","high","low","close"]).to_csv("trading_data.csv")
+    temp = [[now_time, data.iloc[-1]['close'], Account["amount"], Account['average_price'], round((data.iloc[-1]['close'] - Account["average_price"])/data.iloc[-1]['close'] * 100,2), int(pred[-2][0]), Account["result"], temp1 ,data.iloc[-1]["open"], data.iloc[-1]["high"], data.iloc[-1]["low"], data.iloc[-1]["close"]]]
+    pd.DataFrame(temp, columns=["time", "price", "amount", "average_price", "ROE", "pred", "yeild","time2","open","high","low","close"]).to_csv("trading_data.csv")
 def Trading(api_key, secret, symbol, leverage):
     '''
         api_key = "yqrURCKivzwjsTyzxs16JIotlcVVUbHKq71uQQcqIYACzeMwU65BY3HDgqnB2ijL"

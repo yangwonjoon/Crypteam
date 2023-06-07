@@ -45,7 +45,7 @@ class AutoTradingView(APIView):
         "ROE" : data.iloc[-1]['ROE'],
         "pred" : data.iloc[-1]['pred'],
         "yeild" : data.iloc[-1]['yeild'],
-        "time" : data.iloc[-1]["time"],
+        "time2" : data.iloc[-1]["time"],
         "open" : data.iloc[-1]["open"],
         "high" : data.iloc[-1]["high"],
         "low" : data.iloc[-1]["low"],
