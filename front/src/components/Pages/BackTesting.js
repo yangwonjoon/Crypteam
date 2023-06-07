@@ -113,7 +113,7 @@ const ModalContent = styled("div")`
   return (
     <>
       <Grid container spacing={2} sx={{ paddingTop: 10, display: 'flex', justifyContent: 'center' }}>
-        <Grid item xs={12} sm={10}>
+        <Grid item xs={10} sm={11}>
           <Paper sx={{ padding: 2 }}>
             <Grid item>
               <Typography variant="h5">백테스팅</Typography>

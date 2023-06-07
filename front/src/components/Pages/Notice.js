@@ -58,22 +58,8 @@ const Notices = () => {
   
 
   return (
-    <Grid container spacing={2} sx={{paddingTop:10, display: 'flex', justifyContent: 'center'}} >
-        {/* 거래소랑 공지사항 칸 간격 */}
-      {/* <Grid item xs={1} sm={2} >
-        <Paper sx={{ padding: 3 }}>
-          <Typography variant="h5" sx={{ marginBottom: 2 }}>
-            거래소
-          </Typography>
-          {categories.map((category) => (
-            <Typography key={category} sx={{ marginBottom: 1, cursor: 'pointer' }} onClick={() => handleCategoryClick(category)}>
-              {category}
-            </Typography>
-          ))}
-        </Paper>
-      </Grid> */}
-      
-      <Grid item xs={12} sm={10}>
+    <Grid container spacing={2} sx={{paddingTop:10, display: 'flex', justifyContent: 'center'}} >     
+      <Grid item xs={10} sm={11}>
         <Paper sx={{ padding: 2 }}>
           <Grid container justifyContent="space-between" alignItems="center" sx={{ marginBottom: 2 }}>
             <Grid item>
