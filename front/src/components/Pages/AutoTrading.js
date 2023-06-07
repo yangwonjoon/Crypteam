@@ -2,8 +2,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import '../../css/AutoTrading.css'
 import { Form, Button } from 'react-bootstrap';
+// import { Box } from '@mui/material';
+import { createChart, CrosshairMode} from 'lightweight-charts';
 
 function AutoTrading() {
+    const chartContainerRef = useRef(null);
+    const chartRef = useRef(null)
     const [apiKey, setApiKey] = useState('');
     const [secret, setSecret] = useState('');
     const [symbol, setSymbol] = useState('');
@@ -11,7 +15,13 @@ function AutoTrading() {
     const [data, setData] = useState([]);
     const [intervalId, setIntervalId] = useState(null);
     const resultContainerRef = useRef(null);
-
+    const [time, setTime] = useState(0);
+    const [open, setOpen] = useState(0);
+    const [high, setHigh] = useState(0);
+    const [low, setLow] = useState(0);
+    const [close, setClose] = useState(0);
+    
+    const candlestickSeriesRef = useRef(null);
     const handleSubmit = async (e) => {
         e.preventDefault();
         const id = setInterval(async () => {
@@ -19,6 +29,16 @@ function AutoTrading() {
                 const result = await axios.get('http://127.0.0.1:8000/api/AutoTrading/');
                 setData(prevData => [...prevData, result.data]); // GET 요청 결과 데이터를 배열에 추가합니다.
                 scrollToBottom();
+                // const obj = JSON.parse(result.data);
+                
+                const temp = Object.values(result.data);
+                const chart_data = temp.slice(6,temp.length);
+                console.log(chart_data[0],chart_data[1],chart_data[2],chart_data[3],chart_data[4]);
+                setTime(chart_data[0]);
+                setOpen(chart_data[1]);
+                setHigh(chart_data[2]);
+                setLow(chart_data[3]);
+                setClose(chart_data[4]);
             } catch (error) {
                 console.error(error);
             }
@@ -36,16 +56,6 @@ function AutoTrading() {
         setData([response.data]); // POST 요청 응답 데이터를 배열에 담아 설정합니다.
         console.log(response.data);
         // 시작 버튼을 눌렀을 때 5초마다 자동으로 GET 요청을 보내기 위해 setInterval을 설정합니다.
-        // const id = setInterval(async () => {
-        //     try {
-        //         const result = await axios.get('http://127.0.0.1:8000/api/AutoTrading/');
-        //         setData(prevData => [...prevData, result.data]); // GET 요청 결과 데이터를 배열에 추가합니다.
-        //         scrollToBottom();
-        //     } catch (error) {
-        //         console.error(error);
-        //     }
-        // }, 5000);
-        // setIntervalId(id);
 
     } catch (error) {
         console.log("error");
@@ -62,7 +72,50 @@ useEffect(() => {
         clearInterval(intervalId);
     };
 }, [intervalId]);
+useEffect(() => {
+    const fetchData = async () => {
+      try {
+            const candlestickSeries = candlestickSeriesRef.current;
+            console.log(open,high,low,close,time);
+            candlestickSeries.update({
+            time : Date.parse(time) / 1000,
+            open: open,
+            high: high,
+            low: low,
+            close: close,
+          });
+        
+      } catch (error) {
+        console.error(error);
+      }
+    };
 
+    const interval = setInterval(fetchData, 5000);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, []);
+  useEffect(() => {
+    const chart = createChart(chartContainerRef.current, {
+      width: 800,
+      height: 400,
+      crosshair: {
+        mode: CrosshairMode.Normal,
+      },
+    });
+
+    const candlestickSeries = chart.addCandlestickSeries();
+
+    chartRef.current = chart;
+    candlestickSeriesRef.current = candlestickSeries;
+
+    return () => {
+      if (chartRef.current) {
+        chartRef.current.remove();
+      }
+    };
+  }, []);
 //스크롤 맨 아래로
 const scrollToBottom = () => { 
     if (resultContainerRef.current) {
@@ -122,6 +175,7 @@ return (
         )}
         </div>
     </div>
+    <div ref={chartContainerRef}></div>
     </>
 );
 }

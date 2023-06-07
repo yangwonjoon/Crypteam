@@ -60,7 +60,7 @@ const BackTesting = () => {
 
       const chart = chartInstanceRef.current;
       const candlestickSeries = chart.addCandlestickSeries();
-      console.log(data);
+      // console.log(data);
       candlestickSeries.setData(data);
 
       const lineSeries = chart.addLineSeries({
