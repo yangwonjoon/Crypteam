@@ -3,13 +3,23 @@
 }
 
 .form-container {
-  flex: 1;
+  width: 100%;
+}
+
+.result{
+  border: 1px solid black;
+  border-radius: 10px;
+  margin-top: 10px;
+  margin-right: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .result-container {
-  flex: 1;
   overflow-y: scroll;
-  max-height: 350px;
+  max-height: 300px;
+
 }
 
 .autoform,
@@ -18,4 +28,22 @@
   text-align: center;
   margin: 20px;
   padding: 20px;
+}
+
+@media (min-width: 768px) {
+  .auto-container {
+    flex-direction: row;
+  }
+  
+  .form-container {
+    width: 40%;
+  }
+  
+  .result {
+    width: 60%;
+  }
+}
+
+.btn{
+  margin:15px;
 }
