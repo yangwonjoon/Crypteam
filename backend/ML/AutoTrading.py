@@ -109,8 +109,8 @@ def bot(binance, symbol,name, timeframe, model, trade_history):
     line.append(round((data.iloc[-1]['close'] - Account["average_price"])/data.iloc[-1]['close'] * 100,2))
     trade_history.append(line)
     time.sleep(5)
-    temp = [[now_time, data.iloc[-1]['close'], Account["amount"], Account['average_price'], round((data.iloc[-1]['close'] - Account["average_price"])/data.iloc[-1]['close'] * 100,2), int(pred[-2][0]), Account["result"]]]
-    pd.DataFrame(temp, columns=["time", "price", "amount", "average_price", "ROE", "pred", "yeild"]).to_csv("trading_data.csv")
+    temp = [[now_time, data.iloc[-1]['close'], Account["amount"], Account['average_price'], round((data.iloc[-1]['close'] - Account["average_price"])/data.iloc[-1]['close'] * 100,2), int(pred[-2][0]), Account["result"], data.iloc[-1]["datetime"],data.iloc[-1]["open"], data.iloc[-1]["high"], data.iloc[-1]["low"], data.iloc[-1]["close"]]]
+    pd.DataFrame(temp, columns=["time", "price", "amount", "average_price", "ROE", "pred", "yeild","time","open","high","low","close"]).to_csv("trading_data.csv")
 def Trading(api_key, secret, symbol, leverage):
     '''
         api_key = "yqrURCKivzwjsTyzxs16JIotlcVVUbHKq71uQQcqIYACzeMwU65BY3HDgqnB2ijL"

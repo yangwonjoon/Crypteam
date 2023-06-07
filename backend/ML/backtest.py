@@ -35,8 +35,8 @@ class backtest:
         self.amount = 0 # 현재 가지고 있는 주식 수량
         self.MDDList = [] # MDD를 계산하기 위한 리스트
         self.average_price = 0 # 평단가
-        self.sell = []
-        self.buy = []
+        self.sell = {}
+        self.buy = {}
     def initializes(self):
         self.buy_flag = 0
         self.sell_flag = 0
@@ -66,7 +66,7 @@ class backtest:
         
     def DataFrame_to_Json(self):
         result = {}
-        for i in range(len(self.data)):
+        for i in tqdm(range(len(self.data))):
             result[str(i)] = {"time" : str(self.data.iloc[i]["datetime"]), "open" : self.data.iloc[i]["open"], "high" : self.data.iloc[i]["high"], "low" : self.data.iloc[i]["low"], "close" : self.data.iloc[i]["close"]}
         return result
     def basicStrategy(self):
@@ -80,22 +80,23 @@ class backtest:
                 self.average_price = ( self.average_price * self.amount + x_test.iloc[i]['close'] * self.set_amount) / (self.amount + self.set_amount)
                 self.amount += self.set_amount
                 self.BuyingList.append(x_test.iloc[i]['close'])
-                self.buy.append(i)
+                self.buy[str(i)] = "buy"
             if x_test.iloc[i]['label'] == 0 and self.quantityBuying != 0:
                 currYield = (x_test.iloc[i]['close']-self.average_price) * self.amount - (self.average_price * self.fee * self.amount)
                 self.quantityBuyingList.append(self.quantityBuying)
 
                 self.SellInitializes(currYield)
-                self.sell.append(i)
+                self.sell[str(i)] = "sell"
             if self.quantityBuying > 0:
                 self.MDDList.append(round((sum(self.BuyingList)/self.quantityBuying-x_test.iloc[i]['close'])/x_test.iloc[i]['close'],2))
         self.quantityBuyingList.sort()
         self.MDDList.sort()
         
-        if len(self.quantityBuyingList) == 0 or self.totalNumberSales == 0:
+        if len(self.quantityBuyingList) == 0 or self.totalNumberSales == 0 or len(self.MDDList) == 0:
             print("Zero DivisionError")
             self.quantityBuyingList.append(0)
             self.totalNumberSales = 1
+            self.MDDList.append(0)
         re_data = self.DataFrame_to_Json()
         re_data["sell"] = self.sell
         re_data["buy"] = self.buy

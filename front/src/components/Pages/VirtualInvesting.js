@@ -14,6 +14,7 @@ const Chart = () => {
     axios.get('http://127.0.0.1:8000/api/Simulate/')
       .then((response) => {
         let obj = response.data;
+        console.log(typeof response.data);
         const temp = Object.values(obj);
         const transformedData = temp.map((item) => ({
           time: Date.parse(item.time) / 1000,

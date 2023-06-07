@@ -23,6 +23,8 @@ const BackTesting = () => {
   const [showModal, setShowModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [data, setData] = useState(null);
+  const [sell, setsell] = useState(null);
+  const [buy, setbuy] = useState(null);
   useEffect(() => {
     // 차트 생성
     const chart = createChart(chartContainerRef.current, {
@@ -58,6 +60,7 @@ const BackTesting = () => {
 
       const chart = chartInstanceRef.current;
       const candlestickSeries = chart.addCandlestickSeries();
+      console.log(data);
       candlestickSeries.setData(data);
 
       const lineSeries = chart.addLineSeries({
@@ -69,9 +72,12 @@ const BackTesting = () => {
 
       lineSeries.applyOptions({
         priceLineColor: 'rgba(255, 0, 0, 0.8)',
-      });
+      }); 
 
-      const redDots = [data[2], data[7]]; // Example: Sell data points
+      const redDots = []; // Example: Sell data points
+      for(var key in sell){
+        redDots.push(data[parseInt(key)]);
+      }
       redDots.forEach((dataPoint) => {
         const series = chart.addLineSeries({
           lineWidth: 0,
@@ -95,7 +101,10 @@ const BackTesting = () => {
         ]);
       });
 
-      const blueDots = [data[5], data[67]]; // Example: Buy data points
+      const blueDots = []; // Example: Buy data points
+      for(var key in buy){
+        blueDots.push(data[parseInt(key)]);
+      }
       blueDots.forEach((dataPoint) => {
         const series = chart.addLineSeries({
           lineWidth: 0,
@@ -135,24 +144,15 @@ const BackTesting = () => {
       // test_size: testSize,
     };
     const url = "http://127.0.0.1:8000/api/start_bot/";
-    axios
-      .post(url, formData)
+    axios.post(url, formData)
       .then((res) => {
-          let obj = res.data;
-          const temp = Object.values(obj);
-          const temp2 = temp.slice(0,-3);
-          const info_data = temp.slice(-3,-1);
-          
-          const data = Object.values(obj).filter(item => typeof item !== 'number');
-
-          const sell = obj.sell;
-          const buy = obj.buy;
-          
-          console.log(data); // [{ time: '2018-10-19 00:01:02', open: 54.62, high: 55.50, low: 54.52, close: 54.90 }]
-          console.log(sell); // [1, 2, 3, 4, 5]
-          console.log(buy); // [1, 2, 3, 4, 5]
-          // console.log(temp,info_data);
-          const transformedData = temp2.map((item) => ({
+        const obj = JSON.parse(res.data);
+        const temp = Object.values(obj);
+        const chart_data = temp.slice(0,temp.length-3);
+        setsell(temp[temp.length-3]);
+        setbuy(temp[temp.length-2]);
+        setResult(temp[temp.length-1]);
+          const transformedData = chart_data.map((item) => ({
             time: Date.parse(item.time) / 1000,
             open:item.open,
             high:item.high,
@@ -161,7 +161,7 @@ const BackTesting = () => {
 
           setData(transformedData);
           setIsLoading(false);
-          setResult(info_data[2]);
+          // setResult(info_data[2]);
       })
       .catch((err) => {console.log(err);setIsLoading(false);});
 
