@@ -51,6 +51,7 @@ def bot(binance, symbol,name, timeframe, model, trade_history):
 
   print(">> 데이터를 준비하는 중...")
   data = DB_Bot(symbol).GetData()
+  temp1 = str(data.iloc[-1]["datetime"])
   data = data.drop(["datetime"],axis = 1).dropna()
   print(">> 보조지표 생성중...")
   DataManageBot = DataManage(data, parameter = parameter)
@@ -94,7 +95,9 @@ def bot(binance, symbol,name, timeframe, model, trade_history):
       previous_state = now_state
 
     print("==============================================")
+
     print("현재 time:",now_time)
+
     print("현재 가격:",data.iloc[-1]['close'])
     print("현재 수량:",Account["amount"])
     print("현재 평단가:",Account["average_price"])
@@ -109,16 +112,8 @@ def bot(binance, symbol,name, timeframe, model, trade_history):
     line.append(round((data.iloc[-1]['close'] - Account["average_price"])/data.iloc[-1]['close'] * 100,2))
     trade_history.append(line)
     time.sleep(5)
-    return{
-      "time" : now_time,
-      "price" : data.iloc[-1]['close'],
-      "amount" : Account["amount"], 
-      "average_price" : Account['average_price'],
-      "ROE" : round((data.iloc[-1]['close'] - Account["average_price"])/data.iloc[-1]['close'] * 100,2),
-      "pred" : int(pred[-2][0]),
-      "yeild" : Account["result"]
-    }
-
+    temp = [[now_time, data.iloc[-1]['close'], Account["amount"], Account['average_price'], round((data.iloc[-1]['close'] - Account["average_price"])/data.iloc[-1]['close'] * 100,2), int(pred[-2][0]), Account["result"], temp1 ,data.iloc[-1]["open"], data.iloc[-1]["high"], data.iloc[-1]["low"], data.iloc[-1]["close"]]]
+    pd.DataFrame(temp, columns=["time", "price", "amount", "average_price", "ROE", "pred", "yeild","time2","open","high","low","close"]).to_csv("trading_data.csv")
 def Trading(api_key, secret, symbol, leverage):
     '''
         api_key = "yqrURCKivzwjsTyzxs16JIotlcVVUbHKq71uQQcqIYACzeMwU65BY3HDgqnB2ijL"
@@ -126,7 +121,7 @@ def Trading(api_key, secret, symbol, leverage):
         symbol = "ETC_USDT_1m"
         leverage = 10
     '''
-    model = load_model("backend/ML/DNN_Model.h5")
+    model = load_model("../ML/DNN_Model.h5")
     trade_history = []
 
     binance = ccxt.binance(config={

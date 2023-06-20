@@ -139,22 +139,22 @@ class ensembleModel:
     def predict_and_evaluation(self,x_test,y_test, threshold = 0.2):
 
         self.DNNPredict = self.DNNModel.predict(x_test)
-        self.LRPredict = self.LRModel.model.predict(x_test)
-        self.XGBoostPredict = self.XGBoostModel.model.predict(x_test)
-        LSTM_x_test, LSTM_y_test = self.LSTMModel.make_dataset(x_test,y_test)
-        self.LSTMPredict = self.LSTMModel.predict(LSTM_x_test)
+        # self.LRPredict = self.LRModel.model.predict(x_test)
+        # self.XGBoostPredict = self.XGBoostModel.model.predict(x_test)
+        # LSTM_x_test, LSTM_y_test = self.LSTMModel.make_dataset(x_test,y_test)
+        # self.LSTMPredict = self.LSTMModel.predict(LSTM_x_test)
 
         self.DNNPredict = self.DNNPredict.reshape(-1,)
-        self.LRPredict = self.LRPredict.reshape(-1,)
-        self.XGBoostPredict = self.XGBoostPredict.reshape(-1,)
-        self.LSTMPredict = list([-1 for i in range(self.num_step)]) + list(self.LSTMPredict.reshape(-1,))
+        # self.LRPredict = self.LRPredict.reshape(-1,)
+        # self.XGBoostPredict = self.XGBoostPredict.reshape(-1,)
+        # self.LSTMPredict = list([-1 for i in range(self.num_step)]) + list(self.LSTMPredict.reshape(-1,))
 
         self.result_label = []
         cnt = 0
         for i in range(len(self.DNNPredict)):
-            if self.DNNPredict[i] > 1 - threshold and self.LRPredict[i] > 1 - threshold and self.XGBoostPredict[i] > 1 - threshold and self.LSTMPredict[i] > 1 - threshold:
+            if self.DNNPredict[i] > 1 - threshold:
                 self.result_label.append(1)
-            elif self.DNNPredict[i] < threshold and self.LRPredict[i] < threshold and self.XGBoostPredict[i] < threshold and self.LSTMPredict[i] < threshold:
+            elif self.DNNPredict[i] < threshold:
                 self.result_label.append(0)
             else:
                 self.result_label.append(-1)

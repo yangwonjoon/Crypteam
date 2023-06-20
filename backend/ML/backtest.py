@@ -35,7 +35,8 @@ class backtest:
         self.amount = 0 # 현재 가지고 있는 주식 수량
         self.MDDList = [] # MDD를 계산하기 위한 리스트
         self.average_price = 0 # 평단가
-        
+        self.sell = {}
+        self.buy = {}
     def initializes(self):
         self.buy_flag = 0
         self.sell_flag = 0
@@ -63,7 +64,11 @@ class backtest:
         self.buy_flag = 0
         self.sell_flag = 0
         
-
+    def DataFrame_to_Json(self):
+        result = {}
+        for i in tqdm(range(len(self.data))):
+            result[str(i)] = {"time" : str(self.data.iloc[i]["datetime"]), "open" : self.data.iloc[i]["open"], "high" : self.data.iloc[i]["high"], "low" : self.data.iloc[i]["low"], "close" : self.data.iloc[i]["close"]}
+        return result
     def basicStrategy(self):
         x_test = self.data.iloc[-self.test_size:]
         x_test['label'] = self.result_label
@@ -75,22 +80,27 @@ class backtest:
                 self.average_price = ( self.average_price * self.amount + x_test.iloc[i]['close'] * self.set_amount) / (self.amount + self.set_amount)
                 self.amount += self.set_amount
                 self.BuyingList.append(x_test.iloc[i]['close'])
-
+                self.buy[str(i)] = "buy"
             if x_test.iloc[i]['label'] == 0 and self.quantityBuying != 0:
                 currYield = (x_test.iloc[i]['close']-self.average_price) * self.amount - (self.average_price * self.fee * self.amount)
                 self.quantityBuyingList.append(self.quantityBuying)
 
                 self.SellInitializes(currYield)
-
+                self.sell[str(i)] = "sell"
             if self.quantityBuying > 0:
                 self.MDDList.append(round((sum(self.BuyingList)/self.quantityBuying-x_test.iloc[i]['close'])/x_test.iloc[i]['close'],2))
         self.quantityBuyingList.sort()
         self.MDDList.sort()
         
-        if len(self.quantityBuyingList) == 0 or self.totalNumberSales == 0:
+        if len(self.quantityBuyingList) == 0 or self.totalNumberSales == 0 or len(self.MDDList) == 0:
             print("Zero DivisionError")
-            raise ZeroDivisionError
-        return {
+            self.quantityBuyingList.append(0)
+            self.totalNumberSales = 1
+            self.MDDList.append(0)
+        re_data = self.DataFrame_to_Json()
+        re_data["sell"] = self.sell
+        re_data["buy"] = self.buy
+        re_data["info"] = {
             "averageNumberSales" : sum(self.quantityBuyingList)/len(self.quantityBuyingList),
             "totalYield" : self.totalYield,
             "win_rate" : self.win/self.totalNumberSales,
@@ -98,6 +108,7 @@ class backtest:
             "max_buying" : self.quantityBuyingList[-1],
             "NumberTrading" : self.totalNumberSales
         }
+        return re_data
     
     def WaitingStrategy(self, term = 5):
         x_test = self.data.iloc[-self.test_size:]

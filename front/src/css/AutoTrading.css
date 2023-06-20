@@ -1,0 +1,49 @@
+.auto-container {
+  display: flex;
+}
+
+.form-container {
+  width: 100%;
+}
+
+.result{
+  border: 1px solid black;
+  border-radius: 10px;
+  margin-top: 10px;
+  margin-right: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.result-container {
+  overflow-y: scroll;
+  max-height: 300px;
+
+}
+
+.autoform,
+.autoresult,
+.autostop {
+  text-align: center;
+  margin: 20px;
+  padding: 20px;
+}
+
+@media (min-width: 768px) {
+  .auto-container {
+    flex-direction: row;
+  }
+  
+  .form-container {
+    width: 40%;
+  }
+  
+  .result {
+    width: 60%;
+  }
+}
+
+.btn{
+  margin:15px;
+}
