@@ -17,6 +17,7 @@ from ML.monitor import start_bot
 from ML.AutoTrading import Trading
 from ML.Simulated_Investment import Simulated_Start
 import pandas as pd
+from datetime import datetime,timedelta
 def DataFrame_to_Json(data):
     result = {}
     for i in range(len(data)):
@@ -57,12 +58,30 @@ class AutoTradingView(APIView):
         secret = request.data.get('secret')
         symbol = request.data.get('symbol')
         leverage = int(request.data.get('leverage'))
+
+        self.SetData(symbol)
+
         Trading(api_key, secret, symbol, leverage)
         response_data = {
             'message': 'Success',
         }
         return Response(response_data, status=200)
     
+    def SetData(self,symbol):
+        # 자동매매 요청이 오면 미리 500개의 데이터를 받아두고 차트에 띄울 준비를 한다.
+        # BTC_USDT_1m
+        timeframe = str(symbol[9:])
+        t_num = int(timeframe.replace("m","").replace("h","").replace("d",""))
+        t_str = ''.join([c for c in timeframe if not c.isdigit()])
+        if t_str == "m":
+            previous_time = ((datetime.now() - timedelta(minutes=500 * t_num))).strftime('%Y-%m-%d %H:%M:%S')
+        elif t_str == "h":
+            previous_time = ((datetime.now() - timedelta(hours=500 * t_num))).strftime('%Y-%m-%d %H:%M:%S')
+        elif t_str == "d":
+            previous_time = ((datetime.now() - timedelta(days=500 * t_num))).strftime('%Y-%m-%d %H:%M:%S')
+        data = DB_Bot(symbol,previous_time).GetData()
+        data.to_csv("SetData_"+symbol+".csv")
+        
 class SimulateTradingView(APIView):
 
     def get(self,request):

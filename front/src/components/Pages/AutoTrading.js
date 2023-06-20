@@ -14,72 +14,9 @@ function AutoTrading() {
     const [leverage, setLeverage] = useState('');
     const [data, setData] = useState([]);
     const [intervalId, setIntervalId] = useState(null);
+    const [initData, setInitData] = useState(null);
     const resultContainerRef = useRef(null);
-    const [time, setTime] = useState(0);
-    const [open, setOpen] = useState(0);
-    const [high, setHigh] = useState(0);
-    const [low, setLow] = useState(0);
-    const [close, setClose] = useState(0);
     const candlestickSeriesRef = useRef(null);
-    useEffect(() => {
-        const fetchData = async () => {
-          try {
-            const result = await axios.get('http://127.0.0.1:8000/api/AutoTrading/');
-            setData(prevData => [...prevData, result.data]);
-            scrollToBottom();
-    
-            const temp = Object.values(result.data);
-            const chart_data = temp.slice(7, temp.length);
-            const candlestickSeries = candlestickSeriesRef.current;
-            const updatedData = {
-              time: Date.parse(chart_data[0]) / 1000,
-              open: chart_data[1],
-              high: chart_data[2],
-              low: chart_data[3],
-              close: chart_data[4],
-            };
-            candlestickSeries.update(updatedData);
-          } catch (error) {
-            console.error(error);
-          }
-        };
-    
-        const interval = setInterval(fetchData, 5000);
-    
-        return () => {
-          clearInterval(interval);
-        };
-      }, []);
-    useEffect(() => {
-        const fetchData = async () => {
-          try {
-                const result = await axios.get('http://127.0.0.1:8000/api/AutoTrading/');
-                setData(prevData => [...prevData, result.data]);
-                scrollToBottom();
-                
-                const temp = Object.values(result.data);
-                const chart_data = temp.slice(7,temp.length);
-                const candlestickSeries = candlestickSeriesRef.current;
-                console.log(Date.parse(chart_data[0]) / 1000);
-                const updatedData = {
-                  time: Date.parse(chart_data[0]) / 1000,
-                  open: chart_data[1],
-                  high: chart_data[2],
-                  low: chart_data[3],
-                  close: chart_data[4],
-                };
-                candlestickSeries.update(updatedData);
-              } catch (error) {
-                console.error(error);
-              }
-            };
-    
-        const interval = setInterval(fetchData, 5000);
-    
-        return () => {
-          clearInterval(interval);
-        };
-      }, []);
       useEffect(() => {
         const chart = createChart(chartContainerRef.current, {
           width: 800,
@@ -111,16 +48,26 @@ function AutoTrading() {
                 const temp = Object.values(result.data);
                 const chart_data = temp.slice(7,temp.length);
                 // console.log(chart_data[0],chart_data[1],chart_data[2],chart_data[3],chart_data[4]);
-                setTime(chart_data[0]);
-                setOpen(chart_data[1]);
-                setHigh(chart_data[2]);
-                setLow(chart_data[3]);
-                setClose(chart_data[4]);
+                setData(prevData => [...prevData, result.data]);
+                scrollToBottom();
+                
+                const candlestickSeries = candlestickSeriesRef.current;
+                console.log(Date.parse(chart_data[0]) / 1000);
+                const updatedData = {
+                  time: Date.parse(chart_data[0]) / 1000,
+                  open: chart_data[1],
+                  high: chart_data[2],
+                  low: chart_data[3],
+                  close: chart_data[4],
+                };
+                candlestickSeries.update(updatedData);
+
             } catch (error) {
                 console.error(error);
             }
         }, 5000);
         setIntervalId(id);
+        
         try {
             const response = await axios.post('http://127.0.0.1:8000/api/AutoTrading/', {
             api_key: apiKey,
@@ -193,17 +140,31 @@ return (
 
         <div className='result-container' ref={resultContainerRef}>
         {data.length > 0 ? (
-            data.map((result, index) => (
+            data.slice(-1).map((result, index) => {
+              
+              let predText = '';
+
+              // pred 값에 따라 표시할 텍스트를 설정합니다.
+              if (result.pred === 0) {
+                predText = '매도';
+              } else if (result.pred === 1) {
+                predText = '매수';
+              } else if (result.pred === -1) {
+                predText = '관망';
+              }
+
+              return(
                 <div className='autoresult' key={index}>
                     <p>현재 time: <span>{result.time}</span></p>
                     <p>현재 가격: <span>{result.price}</span></p>
                     <p>현재 수량: <span>{result.amount}</span></p>
                     <p>현재 평단가: <span>{result.average_price}</span></p>
                     <p>현재 수익률: <span>{result.ROE}%</span></p>
-                    <p>현재 추세 예측(): <span>{result.pred}</span></p>
+                    <p>현재 추세 예측: <span>{predText}</span></p>
                     <p>수익: <span>{result.yeild}</span></p>
                 </div>
-            ))
+              );                
+          })
         ) : (
             <p className='autoresult'>로딩중…</p>
         )}
