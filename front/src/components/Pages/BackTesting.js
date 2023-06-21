@@ -273,11 +273,12 @@ const BackTesting = () => {
               <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                 <label htmlFor="term">기간:</label>
                 <TextField
-                  type=""
+                  type="textarea"
                   id="term"
                   value={term}
                   onChange={(e) => setTerm(e.target.value)}
                   style={{ width: "200px" }}
+                  
                 />
               </div>
               
