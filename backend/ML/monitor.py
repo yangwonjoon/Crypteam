@@ -63,6 +63,17 @@ def start_bot(coin_name, parameter,term, test_size):
 
     # add Indicator
     print(">> Data에 보조지표를 생성하는중...")
+    parameter = [
+        {"rsi" : {"period" : 14}},
+        {"ma" : {"period" : 7}},
+        {"ma" : {"period" : 25}},
+        {"ema" :{"period" : 7}},
+        {"ema" :{"period" : 25}},
+        {"stochastic" : {"n" : 14,"m" : 5,"t" : 5}},
+        {"bb" : {"length" : 21,"std" : 2}},
+        {"kdj" : {}},
+        {"macd" : {"fast_period": 12, "slow_period" : 26}}
+    ]
     DataManageBot = DataManage(data, parameter = parameter)
     data = DataManageBot.get_data()
 
@@ -93,12 +104,23 @@ def start_bot(coin_name, parameter,term, test_size):
     # # model train
     print(">> model train & evaluation...")
     model = ensembleModel(20,x_train.shape[1])
-    model.models_fit(x_train,y_train)
-    model_eval = model.predict_and_evaluation(x_test,y_test,threshold=0.2)
-
+    # model.models_fit(x_train,y_train)
+    DNN = model.DNNModel.model
+    DNN.fit(x_train,y_train,epochs=1)
+    pred = DNN.predict(x_test)
+    result_label = []
+    for i in range(len(pred)):
+        if pred[i] > 0.8:
+            result_label.append(1)
+        elif pred[i] < 0.2:
+            result_label.append(0)
+        else:
+            result_label.append(-1)
+    # model_eval = model.predict_and_evaluation(x_test,y_test,threshold=0.2)
+    
     # backtesting
     print(">> stratagy backtesting...")
-    backtestBot = backtest(data, model.result_label, test_size, 0.002, 0.0008, 100000)
+    backtestBot = backtest(data, result_label, test_size, 0.002, 0.0008, 1000000)
     backtest_result = backtestBot.basicStrategy()
 
     # backtest 출력 예시
@@ -114,5 +136,6 @@ def start_bot(coin_name, parameter,term, test_size):
     # for i in backtest_result:
     #     print(i,":",round(backtest_result[i],2))
 
-    model.DNNModel.model.save("_Model.h5")
+    # model.DNNModel.model.save("_Model.h5")
+    DNN.save("standard_model.h5")
     return json.dumps(backtest_result)

@@ -1,12 +1,25 @@
 import axios from "axios";
 import React, { useState, useEffect, useRef } from "react";
 import { createChart, CrosshairMode } from "lightweight-charts";
-import {Paper, Grid, Modal, Button, FormControl, MenuItem, Select, TextField, Typography } from "@mui/material";
+import {Backdrop, Paper, Grid, Modal, Button, FormControl, MenuItem, Select, TextField, Typography } from "@mui/material";
 import { styled } from "@mui/system";
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import "../../css/Backtesting.css";
 import { Box } from '@mui/material';
+
+const StyledModal = styled(Modal)`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const ModalContent = styled('div')`
+  background-color: #fff;
+  padding: 60px;
+  outline: none;
+  width: 180px;
+`;
 
 const BackTesting = () => {
   const chartContainerRef = useRef(null);
@@ -198,17 +211,8 @@ const BackTesting = () => {
   /* CSS 스타일링을 여기에 적용하세요 */
 `;
 
-const StyledModal = styled(Modal)`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
 
-const ModalContent = styled("div")`
-  background-color: white;
-  padding: 16px;
-  border-radius: 4px;
-`;
+
 
   return (
     <>
@@ -269,11 +273,12 @@ const ModalContent = styled("div")`
               <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                 <label htmlFor="term">기간:</label>
                 <TextField
-                  type="number"
+                  type="textarea"
                   id="term"
                   value={term}
                   onChange={(e) => setTerm(e.target.value)}
                   style={{ width: "200px" }}
+                  
                 />
               </div>
               
@@ -287,18 +292,16 @@ const ModalContent = styled("div")`
                   placeholderText="날짜 선택"
                 />
               </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                  <Button type="button" variant="contained" color="success" onClick={handleParameterClick}>
-                    ADD Parameter
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px", alignItems: "center", justifyContent: "center" }}>
+                  <Button className="inputbtn" type="button" variant="contained" color="success" onClick={handleParameterClick} style={{height:"43px"}}>
+                  ADD Parameter
                   </Button>
-                  </div>
-                  <div>
-                  <Button type="submit" variant="contained" color="success">
-                    Start Bot
+              </div>
+  
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px", alignItems: "center", justifyContent: "center" }}>
+                  <Button className="inputbtn" type="submit" variant="contained" color="success" style={{height:"43px"}}>
+                  Start Bot
                   </Button>
-                </div>
-              <div style={{ display: "flex", alignItems: "flex-end", gap: "8px" }}>
-                
               </div>
             </form>
             
@@ -314,29 +317,29 @@ const ModalContent = styled("div")`
               <ModalContent>
                 <h2>Add Parameter</h2>
                 <label htmlFor="rsi">RSI:</label>
-                <TextField
-                  type="text"
+                <TextField sx={{ marginBottom: '20px' }}
+                  type=""
                   id="rsi"
                   value={rsi}
                   onChange={(e) => setRsi(e.target.value)}
                 />
                 <label htmlFor="ma">MA:</label>
-                <TextField
-                  type="text"
+                <TextField sx={{ marginBottom: '20px' }}
+                  type=""
                   id="ma"
                   value={ma}
                   onChange={(e) => setMa(e.target.value)}
                 />
                 <label htmlFor="ema">EMA:</label>
-                <TextField
-                  type="text"
+                <TextField sx={{ marginBottom: '20px' }}
+                  type=""
                   id="ema"
                   value={ema}
                   onChange={(e) => setEma(e.target.value)}
                 />
                 <Button type="button" variant="contained" color="success" onClick={handleModalSave}>
                   Save
-                </Button>
+                </Button>{" "}
                 <Button type="button" variant="contained" color="success" onClick={() => setShowModal(false)}>
                   Close
                 </Button>
@@ -349,11 +352,7 @@ const ModalContent = styled("div")`
               width="100%"
               height="100vh"
             >
-              {isLoading ? (
-                <p>Loading...</p>
-              ) : (
-                <Box ref={chartContainerRef} />
-              )}
+              
             </Box>
           </Paper>
         </Grid>

@@ -73,15 +73,27 @@ class AutoTradingView(APIView):
         timeframe = str(symbol[9:])
         t_num = int(timeframe.replace("m","").replace("h","").replace("d",""))
         t_str = ''.join([c for c in timeframe if not c.isdigit()])
+        data_obj = DB_Bot(symbol)
+        now_date = data_obj.GetSetDate() 
         if t_str == "m":
-            previous_time = ((datetime.now() - timedelta(minutes=500 * t_num))).strftime('%Y-%m-%d %H:%M:%S')
+            previous_time = ((now_date - timedelta(minutes=500 * t_num))).strftime('%Y-%m-%d %H:%M:%S')
         elif t_str == "h":
-            previous_time = ((datetime.now() - timedelta(hours=500 * t_num))).strftime('%Y-%m-%d %H:%M:%S')
+            previous_time = ((now_date - timedelta(hours=500 * t_num))).strftime('%Y-%m-%d %H:%M:%S')
         elif t_str == "d":
-            previous_time = ((datetime.now() - timedelta(days=500 * t_num))).strftime('%Y-%m-%d %H:%M:%S')
-        data = DB_Bot(symbol,previous_time).GetData()
+            previous_time = ((now_date - timedelta(days=500 * t_num))).strftime('%Y-%m-%d %H:%M:%S')
+
+        data_obj.since = previous_time
+        data = data_obj.GetData()
         data.to_csv("SetData_"+symbol+".csv")
+
+class SetDataView(APIView):
+    def post(self,request):
+        symbol = request.data.get("symbol")
         
+        # /Users/yuhyeonseog/졸작 연구/git/Crypteam-4/backend/accounts/SetData_BTC_USDT_1m.csv
+        data = pd.read_csv("SetData_"+symbol+".csv",index_col=0)
+        
+        return Response(DataFrame_to_Json(data))
 class SimulateTradingView(APIView):
 
     def get(self,request):

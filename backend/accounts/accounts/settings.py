@@ -87,7 +87,7 @@ WSGI_APPLICATION = 'accounts.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'CoinData',
+        'NAME': 'user',
         "USER" : 'root',
         "PASSWORD" : "825582qaz",
         "HOST" : "127.0.0.1",

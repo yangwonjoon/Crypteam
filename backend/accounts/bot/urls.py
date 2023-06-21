@@ -6,4 +6,5 @@ urlpatterns = [
     path('start_bot/', BacktestingView.as_view()),
     path('AutoTrading/', AutoTradingView.as_view()),
     path('Simulate/', SimulateTradingView.as_view()),
+    path("AutoSetData/",SetDataView.as_view()),
 ]

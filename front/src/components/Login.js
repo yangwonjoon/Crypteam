@@ -66,6 +66,7 @@ const Login = () => {
           value={email}
           onChange={handleUserEmailChange}
           sx={{ mb: 2}}
+          type="email"
         />
         <TextField
 

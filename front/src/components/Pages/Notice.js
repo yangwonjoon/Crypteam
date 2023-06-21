@@ -71,6 +71,7 @@ const Notices = () => {
                 placeholder="검색"
                 value={searchValue}
                 onChange={handleSearchChange}
+                type="textarea"
               />
               <Button variant="contained" color="success" onClick={handleSearchClick}>
               검색
