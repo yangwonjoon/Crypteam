@@ -34,3 +34,12 @@ class DB_Bot:
         col = ["datetime", "open", "high", "low", "close", "volume"]
         data = pd.DataFrame(data,columns = col)
         return data
+    
+    # return datetime obj
+    def GetSetDate(self):
+        con = self.connect_db()
+        cur = con.cursor()
+        sql = "SELECT * FROM CoinData.BTC_USDT_1m ORDER BY timestamp DESC LIMIT 1;"
+        cur.execute(sql)
+        data = cur.fetchall()
+        return data[0][0]

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import '../../css/AutoTrading.css'
-import { Form, Button } from 'react-bootstrap';
+import { Typography, FormControl, MenuItem, Select, Paper, Grid, Box, TextField, Button, Container } from '@mui/material';
 // import { Box } from '@mui/material';
 import { createChart, CrosshairMode} from 'lightweight-charts';
 
@@ -19,7 +19,7 @@ function AutoTrading() {
     const candlestickSeriesRef = useRef(null);
       useEffect(() => {
         const chart = createChart(chartContainerRef.current, {
-          width: 800,
+          width: 912,
           height: 400,
           crosshair: {
             mode: CrosshairMode.Normal,
@@ -38,6 +38,7 @@ function AutoTrading() {
       }, []);
     const handleSubmit = async (e) => {
         e.preventDefault();
+        InitData();
         const id = setInterval(async () => {
             try {
                 const result = await axios.get('http://127.0.0.1:8000/api/AutoTrading/');
@@ -87,6 +88,35 @@ function AutoTrading() {
     }
 };
 
+const InitData = async (e) => {
+    try {
+      const response = await axios.post('http://127.0.0.1:8000/api/AutoSetData/', {
+      symbol: symbol,
+  }
+  );
+  let obj = response.data;
+  const temp = Object.values(obj);
+  const transformedData = temp.map((item) => ({
+    time: Date.parse(item.time) / 1000,
+    open:item.open,
+    high:item.high,
+    low:item.low,
+    close:item.close,
+  }));
+
+  console.log(transformedData);
+  setInitData(transformedData); // POST 요청 응답 데이터를 배열에 담아 설정합니다.
+  const candlestickSeries = candlestickSeriesRef.current;
+  candlestickSeries.setData(transformedData);
+
+  // 시작 버튼을 눌렀을 때 5초마다 자동으로 GET 요청을 보내기 위해 setInterval을 설정합니다.
+
+  } catch (error) {
+  console.log("error");
+  console.error(error);
+  }
+};
+
 const handleStop = () => {
     clearInterval(intervalId);
 };
@@ -106,38 +136,67 @@ const scrollToBottom = () => {
 
 return (
     <>
-    <div className='auto-container'>
-        <div className='form-container'>
-        <Form onSubmit={handleSubmit} className="autoform">
-            <Form.Group controlId="apiKey">
-                <Form.Label>API Key: </Form.Label>
-                <Form.Control type="text" value={apiKey} onChange={(e) => setApiKey(e.target.value)} />
-            </Form.Group>
+    <Grid container spacing={2} sx={{paddingTop:7, display: 'flex', justifyContent: 'center'}} >
+        <Grid item xs={1} sm={3} >
+        <Paper sx={{ padding: 1 }}>
+        <Grid item>
+          <Typography variant="h5">     기본설정</Typography>
+        </Grid>
+          <form onSubmit={handleSubmit} className="autoform">
+            <Box sx={{ marginBottom: '20px' }}>
+              <label htmlFor="apiKey">API Key:</label>
+              <TextField
+                type=""
+                id="apiKey"
+                value={apiKey}
+                onChange={(e) => setApiKey(e.target.value)}
+              />
+            </Box>
 
-            <Form.Group controlId="secret">
-                <Form.Label>Secret: </Form.Label>
-                <Form.Control type="text" value={secret} onChange={(e) => setSecret(e.target.value)} />
-            </Form.Group>
+            <Box sx={{ marginBottom: '20px' }}>
+              <label htmlFor="secret">Secret:</label>
+              <TextField
+                type=""
+                id="secret"
+                value={secret}
+                onChange={(e) => setSecret(e.target.value)}
+              />
+            </Box>
 
-            <Form.Group controlId="symbol">
-                <Form.Label>Symbol: </Form.Label>
-                <Form.Control type="text" value={symbol} onChange={(e) => setSymbol(e.target.value)} />
-            </Form.Group>
+            <Box sx={{ marginBottom: '20px' }}>
+              <label htmlFor="symbol">Symbol:</label>
+              <TextField
+                type=""
+                id="symbol"
+                value={symbol}
+                onChange={(e) => setSymbol(e.target.value)}
+              />
+            </Box>
 
-            <Form.Group controlId="leverage">
-                <Form.Label>Leverage: </Form.Label>
-                <Form.Control type="text" value={leverage} onChange={(e) => setLeverage(e.target.value)} />
-            </Form.Group>
+            <Box sx={{ marginBottom: '20px' }}>
+              <label htmlFor="leverage">Leverage:</label>
+              <TextField
+                type=""
+                id="leverage"
+                value={leverage}
+                onChange={(e) => setLeverage(e.target.value)}
+              />
+            </Box>
 
-            <Button variant="primary" type="submit">
-                시작
+            <Button variant="contained" color="success" type="submit">
+              시작
+            </Button>{" "}
+            <Button variant="contained" color="success" onClick={handleStop}>
+              중단
             </Button>
-        </Form>
-        </div>
-        <Button variant="danger" className="autostop" onClick={handleStop}>
-            중단
-        </Button>
-
+          </form>
+          </Paper>
+          </Grid>
+        
+        
+      <Grid item xs={12} sm={7.5}>
+      <Paper sx={{ padding: 2 }}>
+        <Grid sx={{ marginBottom: '16px' }}>
         <div className='result-container' ref={resultContainerRef}>
         {data.length > 0 ? (
             data.slice(-1).map((result, index) => {
@@ -169,8 +228,12 @@ return (
             <p className='autoresult'>로딩중…</p>
         )}
         </div>
-    </div>
-    <div ref={chartContainerRef}></div>
+        </Grid>
+        <div ref={chartContainerRef}></div>
+      
+      </Paper>
+      </Grid>
+    </Grid>
     </>
 );
 }
