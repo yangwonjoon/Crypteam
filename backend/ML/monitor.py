@@ -1,14 +1,22 @@
 import pandas as pd
-# from DataScaler import Data_StandardScaler
-# from DB_Manage import DB_Bot
-# from Indicator import DataManage
-# from Network import ensembleModel
-# from DataLabeling import DataLabeling
-# from createImage import LabelingImg
-# from backtest import backtest
+from ML.DataScaler import Data_StandardScaler
+from ML.DB_Manage import DB_Bot
+from ML.Indicator import DataManage
+from ML.Network import ensembleModel
+from ML.DataLabeling import DataLabeling
+from ML.createImage import LabelingImg
+from ML.backtest import backtest
 import json
-def start_bot(coin_name, parameter,term, test_size, ImgPath = "ML_Result"):
+from keras.models import load_model
+def dic_to_list(dic):
+    parameter = []
+    for i in dic.keys():
+        temp = {i:{"period" : int(dic[i]) }}
+        parameter.append(temp)
     
+    return parameter
+def start_bot(coin_name, parameter,term, test_size):
+    parameter = dic_to_list(parameter)
     """
     함수실행은 웹페이지에서 백테스트 시작 버튼누르면 함수 실행
     -> 결과 출력
@@ -47,9 +55,6 @@ def start_bot(coin_name, parameter,term, test_size, ImgPath = "ML_Result"):
     test_size(int) ex)
     -> 1440 * 30 (30days)
 
-    이거는 신경 안써도됨
-    ImgPath(str) ex)
-    -> "ML_Result"
     """
 
     # get data
@@ -75,14 +80,17 @@ def start_bot(coin_name, parameter,term, test_size, ImgPath = "ML_Result"):
     # data split & data scaling
     print(">> Datascaling & data split...")
     X,Y = data.drop(['label','datetime'],axis = 1),data['label']
-    X = Data_StandardScaler(X)
 
-    x_train = X[:-test_size]
+    X = Data_StandardScaler(X)
+    temp = data.set_index("datetime")
+    temp["id"] = data.index
+    test_size = int(temp.loc[test_size + " 00:00:00"]["id"])
+    x_train = X[:-test_size]   
     y_train = Y[:-test_size]
     x_test = X[-test_size:]
     y_test = Y[-test_size:]
 
-    # model train
+    # # model train
     print(">> model train & evaluation...")
     model = ensembleModel(20,x_train.shape[1])
     model.models_fit(x_train,y_train)
@@ -103,7 +111,8 @@ def start_bot(coin_name, parameter,term, test_size, ImgPath = "ML_Result"):
         'max_buying': 594,
         'NumberTrading': 370}
     """
-    for i in backtest_result:
-        print(i,":",round(backtest_result[i],2))
+    # for i in backtest_result:
+    #     print(i,":",round(backtest_result[i],2))
 
+    model.DNNModel.model.save("_Model.h5")
     return json.dumps(backtest_result)

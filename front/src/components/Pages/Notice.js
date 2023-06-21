@@ -1,16 +1,22 @@
 /*eslint-disable*/
 import { useState } from 'react';
 import '../../css/Notice.css';
-import { TextField, Paper, Typography, Grid,Button,TableCell, TableContainer, Table, TableRow, IconButton } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
+import { TextField, Paper, Typography, Grid,Button,
+  TableCell, TableContainer, Table, TableRow, Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText, DialogActions} from '@mui/material';
 
-//예시(거래소,공지사항)
-const categories = ['전체', '거래소1', '거래소2', '거래소3', '거래소4'];
+
+  import SearchIcon from '@mui/icons-material/Search';
+
+
 const notices = [
-    { id: 1, category: '거래소1', title: '제목1', date: '2022-12-01' },
-    { id: 2, category: '거래소3', title: '제목2', date: '2022-11-25' },
-    { id: 3, category: '거래소4', title: '제목3', date: '2022-11-20' },
-    { id: 4, category: '거래소2', title: '제목4', date: '2022-11-15' },
+    { id: 1, title: '백테스팅 사용법', date: '2023-04-27', 
+      content:'백테스팅 사용법은 다음과 같습니다 백테스팅 사용방법 설명 공지사항' }
+    // { id: 2, title: '제목2', date: '2022-11-25' },
+    // { id: 3, title: '제목3', date: '2022-11-20' },
+    // { id: 4, title: '제목4', date: '2022-11-15' },
 ];
 
 const Notices = () => {
@@ -26,8 +32,14 @@ const Notices = () => {
     console.log(`"${searchValue}" 검색`);
   }
 
-  const handleCategoryClick = (category) => {
-    setSelectedCategory(category);
+  const [selectedNotice, setSelectedNotice] = useState(null);
+
+  const handleNoticeClick = (notice) => {
+    setSelectedNotice(notice);
+  };
+
+  const handleClose = () => {
+    setSelectedNotice(null);
   };
 
   const filteredNotices = notices.filter((notice) => {
@@ -48,7 +60,7 @@ const Notices = () => {
   return (
     <Grid container spacing={2} sx={{paddingTop:10, display: 'flex', justifyContent: 'center'}} >
         {/* 거래소랑 공지사항 칸 간격 */}
-      <Grid item xs={1} sm={2} >
+      {/* <Grid item xs={1} sm={2} >
         <Paper sx={{ padding: 3 }}>
           <Typography variant="h5" sx={{ marginBottom: 2 }}>
             거래소
@@ -58,13 +70,10 @@ const Notices = () => {
               {category}
             </Typography>
           ))}
-          {/* 배열 categories순회 map함수는 배열의 각 요소를 함수에 적용하고
-          그 결과를 새로운 배열로 반환 . 각 요소를 하나의 typography요소로 변환하고
-          생성된 모든 요소를 배열로 반환.
-          key 프롭은 배열의 요소를 식별하는 역할, sx프롭은 스타일 지정. */}
         </Paper>
-      </Grid>
-      <Grid item xs={12} sm={7.5}>
+      </Grid> */}
+      
+      <Grid item xs={12} sm={10}>
         <Paper sx={{ padding: 2 }}>
           <Grid container justifyContent="space-between" alignItems="center" sx={{ marginBottom: 2 }}>
             <Grid item>
@@ -89,21 +98,34 @@ const Notices = () => {
                 <TableCell sx={{ fontWeight: 'bold', borderBottomWidth: 2 }}>No.</TableCell>
                 <TableCell sx={{ fontWeight: 'bold', borderBottomWidth: 2 }}>제목</TableCell>
                 <TableCell sx={{ fontWeight: 'bold', borderBottomWidth: 2 }}>등록일</TableCell>
-                <TableCell sx={{ fontWeight: 'bold', borderBottomWidth: 2 }}>조회수</TableCell>
               </TableRow>
 
-              {filteredNotices.map((notice, index) => (
+              {notices.map((notice) => (
               <TableRow key={notice.id}>
-                  <TableCell component="th" scope="row" sx={{ borderBottomWidth: 2 }}>
-                  {index + 1}
+                  <TableCell sx={{ borderBottomWidth: 2 }}>{notice.id}</TableCell>
+                  <TableCell
+                    onClick={() => handleNoticeClick(notice)}
+                    sx={{ borderBottomWidth: 2, cursor: 'pointer' }}
+                  >
+                    {notice.title}
                   </TableCell>
-                  <TableCell sx={{ borderBottomWidth: 2 }}>{notice.title}</TableCell>
                   <TableCell sx={{ borderBottomWidth: 2 }}>{notice.date}</TableCell>
-                  <TableCell sx={{ borderBottomWidth: 2 }}>{notice.views}</TableCell>
               </TableRow>
               ))}
             </Table>
             </TableContainer>
+
+            <Dialog open={selectedNotice !== null} onClose={handleClose} sx={{ maxWidth: '5000vh', maxHeight: '5000vh' }}>
+              <DialogTitle>{selectedNotice?.title}</DialogTitle>
+              <DialogContent>
+                <DialogContentText>{selectedNotice?.content}</DialogContentText>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={handleClose}>
+                  x
+                </Button>
+              </DialogActions>
+            </Dialog>
 
         </Paper>
       </Grid>

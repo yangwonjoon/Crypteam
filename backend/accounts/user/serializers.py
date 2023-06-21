@@ -1,8 +1,19 @@
+from .models import User
 from rest_framework import serializers
-from .models import UserInfo
 
-# user_id, password, re_password, user_name, birth, email, phone_number, api_key, sec_key, date
-class UserInfoSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = UserInfo
-        fields = ['user_id', 'password', 're_password','user_name', 'birth', 'email', 'phone_number', 'api_key', 'sec_key', 'date']
+        model = User
+        fields = '__all__'
+
+    def create(self, validated_data):
+        user = User.objects.create_user(
+            email = validated_data['email'],
+            password = validated_data['password'],
+            user_name= validated_data['user_name'],
+            birth= validated_data['birth'],
+            phone_number= validated_data['phone_number'],
+            api_key= validated_data['api_key'],
+            sec_key= validated_data['sec_key'],
+        )
+        return user

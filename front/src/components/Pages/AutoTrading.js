@@ -1,83 +1,178 @@
-/*eslint-disable*/
-import React, {useState} from 'react';
-import { Box,TextField, Paper, Typography, Grid,Button,TableCell, TableContainer, Table, TableRow, IconButton } from '@mui/material';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
+import React, { useState, useEffect, useRef } from 'react';
+import axios from 'axios';
+import '../../css/AutoTrading.css'
+import { Form, Button } from 'react-bootstrap';
+// import { Box } from '@mui/material';
+import { createChart, CrosshairMode} from 'lightweight-charts';
 
-const AutoTrading = () => {
-    const [startDate, setStartDate] = useState(null);
-    const [endDate, setEndDate] = useState(null);
+function AutoTrading() {
+    const chartContainerRef = useRef(null);
+    const chartRef = useRef(null)
+    const [apiKey, setApiKey] = useState('');
+    const [secret, setSecret] = useState('');
+    const [symbol, setSymbol] = useState('');
+    const [leverage, setLeverage] = useState('');
+    const [data, setData] = useState([]);
+    const [intervalId, setIntervalId] = useState(null);
+    const [initData, setInitData] = useState(null);
+    const resultContainerRef = useRef(null);
+    const candlestickSeriesRef = useRef(null);
+      useEffect(() => {
+        const chart = createChart(chartContainerRef.current, {
+          width: 800,
+          height: 400,
+          crosshair: {
+            mode: CrosshairMode.Normal,
+          },
+        });
     
-    const handleStartDateChange = (date) => {
-        setStartDate(date);
-    };
+        const candlestickSeries = chart.addCandlestickSeries();
+        chartRef.current = chart;
+        candlestickSeriesRef.current = candlestickSeries;
     
-    const handleEndDateChange = (date) => {
-        setEndDate(date);
-    };
-    
-    const handleApplyButtonClick = () => {
-        console.log('Apply clicked');
-        console.log(`Start Date: ${startDate}`);
-        console.log(`End Date: ${endDate}`);
-    };
-    
-    const handleClearButtonClick = () => {
-        console.log('Clear clicked');
-        setStartDate(null);
-        setEndDate(null);
-    };
-    return(
-        <>
-        {/* <Grid item xs={12} sm={7.5}> */}
-        <Paper sx={{ padding:10, display: 'flex', justifyContent: 'center' }}>
-        <Grid container justifyContent="space-between" alignItems="center" sx={{ marginBottom: 8 }}>
+        return () => {
+          if (chartRef.current) {
+            chartRef.current.remove();
+          }
+        };
+      }, []);
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        const id = setInterval(async () => {
+            try {
+                const result = await axios.get('http://127.0.0.1:8000/api/AutoTrading/');
+                setData(prevData => [...prevData, result.data]); // GET 요청 결과 데이터를 배열에 추가합니다.
+                scrollToBottom();
+                // const obj = JSON.parse(result.data);
+                
+                const temp = Object.values(result.data);
+                const chart_data = temp.slice(7,temp.length);
+                // console.log(chart_data[0],chart_data[1],chart_data[2],chart_data[3],chart_data[4]);
+                setData(prevData => [...prevData, result.data]);
+                scrollToBottom();
+                
+                const candlestickSeries = candlestickSeriesRef.current;
+                console.log(Date.parse(chart_data[0]) / 1000);
+                const updatedData = {
+                  time: Date.parse(chart_data[0]) / 1000,
+                  open: chart_data[1],
+                  high: chart_data[2],
+                  low: chart_data[3],
+                  close: chart_data[4],
+                };
+                candlestickSeries.update(updatedData);
+
+            } catch (error) {
+                console.error(error);
+            }
+        }, 5000);
+        setIntervalId(id);
         
-            <Box display="flex" alignItems="center" >
-                <Typography sx={{ mr: 1 }}>기간선택:</Typography>
-                <Box display="flex" alignItems="center" sx={{ flexGrow: 1 , marginRight: '10px'}}>
-                    <DatePicker
-                    selected={startDate}
-                    onChange={handleStartDateChange}
-                    dateFormat="yyyy/MM/dd"
-                    customInput={<TextField />}
-                    sx={{ mr: 1 }}
-                    />
-                    <Typography sx={{ mx: 1 }}>~</Typography>
-                    <DatePicker
-                    selected={endDate}
-                    onChange={handleEndDateChange}
-                    dateFormat="yyyy/MM/dd"
-                    customInput={<TextField />}
-                    sx={{ mr: 1 }}
-                    />{" "}
-                </Box>
-                
-                <Box  flexGrow={1} />
-                
-                <Box display="flex" alignItems="center" >
-                <Button variant="contained" color="success" onClick={handleApplyButtonClick} sx={{ mr: 1 }}>매매시작</Button>
-                <Button variant="contained" color="success" onClick={handleClearButtonClick}>매매종료</Button>
-                </Box>
-            </Box>
+        try {
+            const response = await axios.post('http://127.0.0.1:8000/api/AutoTrading/', {
+            api_key: apiKey,
+            secret: secret,
+            symbol: symbol,
+            leverage: leverage
+        }
+        );
 
-            <TableContainer component={Paper}>
-                <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                    <TableRow>
-                    <TableCell sx={{ fontWeight: 'bold', borderBottomWidth: 2 }}>No.</TableCell>
-                    <TableCell sx={{ fontWeight: 'bold', borderBottomWidth: 2 }}>날짜</TableCell>
-                    <TableCell sx={{ fontWeight: 'bold', borderBottomWidth: 2 }}>현재 수익률</TableCell>
-                    <TableCell sx={{ fontWeight: 'bold', borderBottomWidth: 2 }}>보유 코인 수</TableCell>
-                    <TableCell sx={{ fontWeight: 'bold', borderBottomWidth: 2 }}>보유 현금($)</TableCell>
-                    <TableCell sx={{ fontWeight: 'bold', borderBottomWidth: 2 }}>매수/매도 신호</TableCell>
-                    </TableRow>
-                </Table>
-            </TableContainer>
-        </Grid>
-        </Paper>
-        {/* </Grid> */}
-        </>
-    )
+        setData([response.data]); // POST 요청 응답 데이터를 배열에 담아 설정합니다.
+        console.log("eorror",response.data);
+        // 시작 버튼을 눌렀을 때 5초마다 자동으로 GET 요청을 보내기 위해 setInterval을 설정합니다.
+
+    } catch (error) {
+        console.log("error");
+        console.error(error);
+    }
 };
+
+const handleStop = () => {
+    clearInterval(intervalId);
+};
+
+useEffect(() => {
+    return () => {
+        clearInterval(intervalId);
+    };
+}, [intervalId]);
+
+//스크롤 맨 아래로
+const scrollToBottom = () => { 
+    if (resultContainerRef.current) {
+        resultContainerRef.current.scrollTop = resultContainerRef.current.scrollHeight;
+    }
+};
+
+return (
+    <>
+    <div className='auto-container'>
+        <div className='form-container'>
+        <Form onSubmit={handleSubmit} className="autoform">
+            <Form.Group controlId="apiKey">
+                <Form.Label>API Key: </Form.Label>
+                <Form.Control type="text" value={apiKey} onChange={(e) => setApiKey(e.target.value)} />
+            </Form.Group>
+
+            <Form.Group controlId="secret">
+                <Form.Label>Secret: </Form.Label>
+                <Form.Control type="text" value={secret} onChange={(e) => setSecret(e.target.value)} />
+            </Form.Group>
+
+            <Form.Group controlId="symbol">
+                <Form.Label>Symbol: </Form.Label>
+                <Form.Control type="text" value={symbol} onChange={(e) => setSymbol(e.target.value)} />
+            </Form.Group>
+
+            <Form.Group controlId="leverage">
+                <Form.Label>Leverage: </Form.Label>
+                <Form.Control type="text" value={leverage} onChange={(e) => setLeverage(e.target.value)} />
+            </Form.Group>
+
+            <Button variant="primary" type="submit">
+                시작
+            </Button>
+        </Form>
+        </div>
+        <Button variant="danger" className="autostop" onClick={handleStop}>
+            중단
+        </Button>
+
+        <div className='result-container' ref={resultContainerRef}>
+        {data.length > 0 ? (
+            data.slice(-1).map((result, index) => {
+              
+              let predText = '';
+
+              // pred 값에 따라 표시할 텍스트를 설정합니다.
+              if (result.pred === 0) {
+                predText = '매도';
+              } else if (result.pred === 1) {
+                predText = '매수';
+              } else if (result.pred === -1) {
+                predText = '관망';
+              }
+
+              return(
+                <div className='autoresult' key={index}>
+                    <p>현재 time: <span>{result.time}</span></p>
+                    <p>현재 가격: <span>{result.price}</span></p>
+                    <p>현재 수량: <span>{result.amount}</span></p>
+                    <p>현재 평단가: <span>{result.average_price}</span></p>
+                    <p>현재 수익률: <span>{result.ROE}%</span></p>
+                    <p>현재 추세 예측: <span>{predText}</span></p>
+                    <p>수익: <span>{result.yeild}</span></p>
+                </div>
+              );                
+          })
+        ) : (
+            <p className='autoresult'>로딩중…</p>
+        )}
+        </div>
+    </div>
+    <div ref={chartContainerRef}></div>
+    </>
+);
+}
 
 export default AutoTrading;
