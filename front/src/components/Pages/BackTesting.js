@@ -273,11 +273,12 @@ const BackTesting = () => {
               <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                 <label htmlFor="term">기간:</label>
                 <TextField
-                  type=""
+                  type="textarea"
                   id="term"
                   value={term}
                   onChange={(e) => setTerm(e.target.value)}
                   style={{ width: "200px" }}
+                  
                 />
               </div>
               
@@ -291,18 +292,16 @@ const BackTesting = () => {
                   placeholderText="날짜 선택"
                 />
               </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                  <Button type="button" variant="contained" color="success" onClick={handleParameterClick}>
-                    ADD Parameter
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px", alignItems: "center", justifyContent: "center" }}>
+                  <Button className="inputbtn" type="button" variant="contained" color="success" onClick={handleParameterClick} style={{height:"43px"}}>
+                  ADD Parameter
                   </Button>
-                  </div>
-                  <div>
-                  <Button type="submit" variant="contained" color="success">
-                    Start Bot
+              </div>
+  
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px", alignItems: "center", justifyContent: "center" }}>
+                  <Button className="inputbtn" type="submit" variant="contained" color="success" style={{height:"43px"}}>
+                  Start Bot
                   </Button>
-                </div>
-              <div style={{ display: "flex", alignItems: "flex-end", gap: "8px" }}>
-                
               </div>
             </form>
             
@@ -353,11 +352,7 @@ const BackTesting = () => {
               width="100%"
               height="100vh"
             >
-              {isLoading ? (
-                <p>Loading...</p>
-              ) : (
-                <Box ref={chartContainerRef} />
-              )}
+              
             </Box>
           </Paper>
         </Grid>
