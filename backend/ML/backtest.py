@@ -66,8 +66,9 @@ class backtest:
         
     def DataFrame_to_Json(self):
         result = {}
-        for i in tqdm(range(len(self.data))):
-            result[str(i)] = {"time" : str(self.data.iloc[i]["datetime"]), "open" : self.data.iloc[i]["open"], "high" : self.data.iloc[i]["high"], "low" : self.data.iloc[i]["low"], "close" : self.data.iloc[i]["close"]}
+        x_test = self.data.iloc[-self.test_size:]
+        for i in tqdm(range(len(x_test))):
+            result[str(i)] = {"time" : str(x_test.iloc[i]["datetime"]), "open" : x_test.iloc[i]["open"], "high" : x_test.iloc[i]["high"], "low" : x_test.iloc[i]["low"], "close" : x_test.iloc[i]["close"]}
         return result
     def basicStrategy(self):
         x_test = self.data.iloc[-self.test_size:]

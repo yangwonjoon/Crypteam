@@ -7,7 +7,7 @@ from sklearn.preprocessing import StandardScaler
 from ML.DB_Manage import DB_Bot
 import pandas as pd
 from keras.models import load_model
-
+from ML.DATA_INDICATORS import *
 def download_data(frame):
   binance = ccxt.binance()
   btc_ohlcv = binance.fetch_ohlcv("BTC/USDT",limit = 500,timeframe=frame)
@@ -50,32 +50,61 @@ def bot(binance, symbol,name, timeframe, model, trade_history):
   print("-----자동매매 준비중-----")
 
   print(">> 데이터를 준비하는 중...")
-  data = DB_Bot(symbol).GetData()
+  data = DB_Bot(symbol,"2023-01-01 00:00:00").GetData()
   temp1 = str(data.iloc[-1]["datetime"])
-  data = data.drop(["datetime"],axis = 1).dropna()
-  print(">> 보조지표 생성중...")
-  DataManageBot = DataManage(data, parameter = parameter)
-  data = DataManageBot.get_data()
-  print(">> 데이터를 정규화하는 중...")
-  scaler = StandardScaler()
-  scaler.fit(data)
+  # print(">> 보조지표 생성중...")
+  # # DataManageBot = DataManage(data, parameter = parameter)
+  # # data = DataManageBot.get_data()
+  # data = add_rsi(data)
+  # data = add_ma(data,period=7)
+  # data = add_ema(data,period=7)
+  # data = add_ma(data,period=25)
+  # data = add_ema(data,period=25)
+  # data = add_ma(data,period=99)
+  # data = add_ema(data,period=99)
+  # data = add_stochastic(data)
+  # data = add_bb(data,length=21)
+  # data = add_disparity(data,period=25)
+  # data = add_macd(data)
+  # data = add_kdj(data)
+  # data = data.dropna()
+  # print(">> 데이터를 정규화하는 중...")
+  # # scaler = StandardScaler()
+  # # scaler.fit(data)
   
   print("-----자동매매 시작!-----")
   while(True):
     data = download_data(timeframe)
-    DataManageBot = DataManage(data, parameter = parameter)
-    data = DataManageBot.get_data()
+    data = add_rsi(data)
+    data = add_ma(data,period=7)
+    data = add_ema(data,period=7)
+    data = add_ma(data,period=25)
+    data = add_ema(data,period=25)
+    data = add_ma(data,period=99)
+    data = add_ema(data,period=99)
+    data = add_stochastic(data)
+    data = add_bb(data,length=21)
+    data = add_disparity(data,period=25)
+    data = add_macd(data)
+    data = add_kdj(data)
+    data = data.dropna()
 
 
     x = data.iloc[-2:]
-    x = scaler.transform(x)
+    # x = scaler.transform(x)
     pred = model.predict(x)
-
+    action = 0
+    if pred[-2][0] < 0.2:
+      practioned = 0
+    elif pred[-2][0] > 0.8:
+      action = 1
+    else:
+      action = -1
     now_time = data.index[-1]
     now_state = pred[-1]
 
     # 이전과 시간이 다르므로 조건 만족시 구매 
-    if now_time != previous_time and int(pred[-2][0]) == 1:
+    if now_time != previous_time and action == 1:
       order = binance.create_market_buy_order(
       symbol=name,
       amount=0.01)
@@ -83,7 +112,7 @@ def bot(binance, symbol,name, timeframe, model, trade_history):
       previous_time = now_time
       previous_state = now_state
 
-    elif now_time != previous_time and int(pred[-2][0]) == 0 and Account["amount"] >= 0.01:
+    elif now_time != previous_time and action == 0 and Account["amount"] >= 0.01:
       order = binance.create_market_sell_order(
       symbol=name,
       amount=Account["amount"])
@@ -102,7 +131,7 @@ def bot(binance, symbol,name, timeframe, model, trade_history):
     print("현재 수량:",Account["amount"])
     print("현재 평단가:",Account["average_price"])
     print("현재 수익률:",round((data.iloc[-1]['close'] - Account["average_price"])/data.iloc[-1]['close'] * 100,2),"%")
-    print("현재 추세 예측(1이면 다음 시가에 사야하고 0이면 팔아야함):",int(pred[-2][0]))
+    print("현재 추세 예측(1이면 다음 시가에 사야하고 0이면 팔아야함):",action)
     print("수익:",Account["result"])
     
     line = []
@@ -111,8 +140,8 @@ def bot(binance, symbol,name, timeframe, model, trade_history):
     line.append(Account["result"])
     line.append(round((data.iloc[-1]['close'] - Account["average_price"])/data.iloc[-1]['close'] * 100,2))
     trade_history.append(line)
-    time.sleep(5)
-    temp = [[now_time, data.iloc[-1]['close'], Account["amount"], Account['average_price'], round((data.iloc[-1]['close'] - Account["average_price"])/data.iloc[-1]['close'] * 100,2), int(pred[-2][0]), Account["result"], temp1 ,data.iloc[-1]["open"], data.iloc[-1]["high"], data.iloc[-1]["low"], data.iloc[-1]["close"]]]
+    time.sleep(0.5)
+    temp = [[now_time, data.iloc[-1]['close'], Account["amount"], Account['average_price'], round((data.iloc[-1]['close'] - Account["average_price"])/data.iloc[-1]['close'] * 100,2), action, Account["result"], temp1 ,data.iloc[-1]["open"], data.iloc[-1]["high"], data.iloc[-1]["low"], data.iloc[-1]["close"]]]
     pd.DataFrame(temp, columns=["time", "price", "amount", "average_price", "ROE", "pred", "yeild","time2","open","high","low","close"]).to_csv("trading_data.csv")
 def Trading(api_key, secret, symbol, leverage):
     '''
@@ -121,7 +150,7 @@ def Trading(api_key, secret, symbol, leverage):
         symbol = "ETC_USDT_1m"
         leverage = 10
     '''
-    model = load_model("../ML/DNN_Model.h5")
+    model = load_model("/Users/yuhyeonseog/졸작 연구/git/Crypteam-4/backend/accounts/dnn_BTC_USTD_1m.h5")
     trade_history = []
 
     binance = ccxt.binance(config={
