@@ -272,7 +272,7 @@ const BackTesting = () => {
                 </FormControl>
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                <label htmlFor="term">기간:</label>
+                <label htmlFor="term">라벨링 기간:</label>
                 <TextField
                   type="textarea"
                   id="term"
