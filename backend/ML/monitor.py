@@ -1,4 +1,6 @@
 import pandas as pd
+import pandas_ta as pta
+import numpy as np
 from ML.DataScaler import Data_StandardScaler
 from ML.DB_Manage import DB_Bot
 from ML.Indicator import DataManage
@@ -6,6 +8,7 @@ from ML.Network import ensembleModel
 from ML.DataLabeling import DataLabeling
 from ML.createImage import LabelingImg
 from ML.backtest import backtest
+from ML.DATA_INDICATORS import *
 import json
 from keras.models import load_model
 def dic_to_list(dic):
@@ -63,52 +66,70 @@ def start_bot(coin_name, parameter,term, test_size):
 
     # add Indicator
     print(">> Data에 보조지표를 생성하는중...")
-    parameter = [
-        {"rsi" : {"period" : 14}},
-        {"ma" : {"period" : 7}},
-        {"ma" : {"period" : 25}},
-        {"ema" :{"period" : 7}},
-        {"ema" :{"period" : 25}},
-        {"stochastic" : {"n" : 14,"m" : 5,"t" : 5}},
-        {"bb" : {"length" : 21,"std" : 2}},
-        {"kdj" : {}},
-        {"macd" : {"fast_period": 12, "slow_period" : 26}}
-    ]
-    DataManageBot = DataManage(data, parameter = parameter)
-    data = DataManageBot.get_data()
-
+    # parameter = [
+    #     {"rsi" : {"period" : 14}},
+    #     {"ma" : {"period" : 7}},
+    #     {"ema" :{"period" : 7}},
+    #     {"ma" : {"period" : 25}},
+    #     {"ema" :{"period" : 25}},
+    #     {"ma" : {"period" : 99}},
+    #     {"ema" :{"period" : 99}},
+    #     {"stochastic" : {"n" : 14,"m" : 5,"t" : 5}},
+    #     {"bb" : {"length" : 21,"std" : 2}},
+    #     # {"macd" : {"fast_period": 12, "slow_period" : 26}}
+    # ]
+    # data = add_disparity(data,25)
+    # data = add_macd(data)
+    # data = add_kdj(data)
+    # DataManageBot = DataManage(data, parameter = parameter)
+    # data = DataManageBot.get_data()
+    data = add_rsi(data)
+    data = add_ma(data,period=7)
+    data = add_ema(data,period=7)
+    data = add_ma(data,period=25)
+    data = add_ema(data,period=25)
+    data = add_ma(data,period=99)
+    data = add_ema(data,period=99)
+    data = add_stochastic(data)
+    data = add_bb(data,length=21)
+    data = add_disparity(data,period=25)
+    data = add_macd(data)
+    data = add_kdj(data)
+    data = data.dropna()
     # Data Labeling -> add label col
     print(">> DataLabeling...")
-    Labeler = DataLabeling(data, term, "close")
-    Labeler.run()
-    data = Labeler.data
-
+    # Labeler = DataLabeling(data, term, "close")
+    # Labeler.run()
+    # data = Labeler.data
+    # data.to_csv("labeled_data_"+coin_name+".csv")
     # Labeling Data 시각화
     # print(">> LabelingImg 생성중...")
     # Imaging_data = pd.concat([data.iloc[-test_size:].reset_index(), pd.DataFrame(model.result_label,columns=["result_label"])],axis=1)
     # LabelingImg(Imaging_data, ImgPath)
 
     # data split & data scaling
+    X,Y = data.drop(['datetime'],axis = 1).to_numpy(),data.close.to_numpy()
     print(">> Datascaling & data split...")
-    X,Y = data.drop(['label','datetime'],axis = 1),data['label']
+    # X,Y = data.drop(['label','datetime'],axis = 1),data['label']
 
-    X = Data_StandardScaler(X)
+    # X = Data_StandardScaler(X)
     temp = data.set_index("datetime")
     temp["id"] = data.index
     test_size = int(temp.loc[test_size + " 00:00:00"]["id"])
-    x_train = X[:-test_size]   
-    y_train = Y[:-test_size]
-    x_test = X[-test_size:]
-    y_test = Y[-test_size:]
+    x_train = X[:test_size]
+    y_train = Y[:test_size]
+    x_test = X[test_size:]
+    y_test = Y[test_size:]
 
     # # model train
     print(">> model train & evaluation...")
-    model = ensembleModel(20,x_train.shape[1])
+    # model = ensembleModel(20,x_train.shape[1])
+    
     # model.models_fit(x_train,y_train)
-    DNN = model.DNNModel.model
-    DNN.fit(x_train,y_train,epochs=1)
+    DNN = load_model("/Users/yuhyeonseog/졸작 연구/git/Crypteam-4/backend/accounts/dnn_BTC_USTD_1m.h5")
     pred = DNN.predict(x_test)
     result_label = []
+    print(pd.DataFrame(pred).describe())
     for i in range(len(pred)):
         if pred[i] > 0.8:
             result_label.append(1)
@@ -120,7 +141,8 @@ def start_bot(coin_name, parameter,term, test_size):
     
     # backtesting
     print(">> stratagy backtesting...")
-    backtestBot = backtest(data, result_label, test_size, 0.002, 0.0008, 1000000)
+    print(pd.DataFrame(result_label).value_counts())
+    backtestBot = backtest(data, result_label, (len(X) - test_size), 0.002, 0.0008, 1000000)
     backtest_result = backtestBot.basicStrategy()
 
     # backtest 출력 예시
@@ -137,5 +159,5 @@ def start_bot(coin_name, parameter,term, test_size):
     #     print(i,":",round(backtest_result[i],2))
 
     # model.DNNModel.model.save("_Model.h5")
-    DNN.save("standard_model.h5")
+    # DNN.save("standard_model.h5")
     return json.dumps(backtest_result)

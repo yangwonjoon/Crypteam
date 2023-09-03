@@ -97,8 +97,21 @@ class SetDataView(APIView):
 class SimulateTradingView(APIView):
 
     def get(self,request):
-        data = DB_Bot("BTC_USDT_4h").GetData()
-        return Response(DataFrame_to_Json(data))
+        data = pd.read_csv("../accounts/test_data.csv", index_col = 0)
+        return Response({
+        "time" : data.iloc[-1]["time"],
+        "price" : data.iloc[-1]['price'],
+        "amount" : data.iloc[-1]['amount'], 
+        "average_price" :data.iloc[-1]['average_price'],
+        "ROE" : data.iloc[-1]['ROE'],
+        "pred" : data.iloc[-1]['pred'],
+        "yeild" : data.iloc[-1]['yeild'],
+        "time2" : data.iloc[-1]["time"],
+        "open" : data.iloc[-1]["open"],
+        "high" : data.iloc[-1]["high"],
+        "low" : data.iloc[-1]["low"],
+        "close" : data.iloc[-1]["close"],
+        })
     
     def post(self, request):
         symbol = request.data.get('symbol')

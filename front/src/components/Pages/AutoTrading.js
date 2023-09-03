@@ -14,7 +14,11 @@ function AutoTrading() {
     const [leverage, setLeverage] = useState('');
     const [data, setData] = useState([]);
     const [intervalId, setIntervalId] = useState(null);
-    const [initData, setInitData] = useState(null);
+    const [pretime, setTime] = useState(null);
+    const [last_time, setLastTime] = useState(null);
+    const [chart2, setChart] = useState(null);
+    const [Chart_Data, setChartData] = useState(null);
+    const [pred_data, setPred] = useState(null);
     const resultContainerRef = useRef(null);
     const candlestickSeriesRef = useRef(null);
       useEffect(() => {
@@ -48,12 +52,15 @@ function AutoTrading() {
                 
                 const temp = Object.values(result.data);
                 const chart_data = temp.slice(7,temp.length);
+                const candlestickSeries = candlestickSeriesRef.current;
+                setPred(temp[5]);
+                setChartData(temp.slice(7,temp.length));
+                setChart(chartRef.current);
+                
                 // console.log(chart_data[0],chart_data[1],chart_data[2],chart_data[3],chart_data[4]);
                 setData(prevData => [...prevData, result.data]);
                 scrollToBottom();
                 
-                const candlestickSeries = candlestickSeriesRef.current;
-                console.log(Date.parse(chart_data[0]) / 1000);
                 const updatedData = {
                   time: Date.parse(chart_data[0]) / 1000,
                   open: chart_data[1],
@@ -62,11 +69,12 @@ function AutoTrading() {
                   close: chart_data[4],
                 };
                 candlestickSeries.update(updatedData);
-
+                setLastTime(Date.parse(chart_data[0]) / 1000);
+              
             } catch (error) {
                 console.error(error);
             }
-        }, 5000);
+        }, 500);
         setIntervalId(id);
         
         try {
@@ -87,6 +95,79 @@ function AutoTrading() {
         console.error(error);
     }
 };
+console.log(last_time,pretime);
+console.log(last_time==pretime);
+if(last_time != pretime){
+  setTime(last_time);
+  console.log(pretime);
+  if(pred_data == 0){
+    const series = chart2.addLineSeries({
+      lineWidth: 0,
+      color: 'red',
+      priceLineVisible: false,
+    });
+
+    series.setData([
+      { time: last_time, value: Chart_Data[4] },
+    ]);
+
+    series.setMarkers([
+      {
+        time: last_time,
+        position: 'aboveBar',
+        shape: 'circle',
+        size: 1,
+        color: 'red',
+        text: 'sell',
+      },
+    ]);
+  }
+  else if(pred_data == 1){
+    const series = chart2.addLineSeries({
+      lineWidth: 0,
+      color: 'blue',
+      priceLineVisible: false,
+    });
+
+    series.setData([
+      { time: last_time, value: Chart_Data[4] },
+    ]);
+
+    series.setMarkers([
+      {
+        time: last_time,
+        position: 'aboveBar',
+        shape: 'circle',
+        size: 1,
+        color: 'blue',
+        text: 'buy',
+      },
+    ]);
+  }
+  else{
+    const series = chart2.addLineSeries({
+      lineWidth: 0,
+      color: 'black',
+      priceLineVisible: false,
+    });
+
+    series.setData([
+      { time: last_time, value: Chart_Data[4] },
+    ]);
+
+    series.setMarkers([
+      {
+        time: last_time,
+        position: 'aboveBar',
+        shape: 'circle',
+        size: 1,
+        color: 'black',
+        text: 'hold',
+      },
+    ]);
+  }
+  setTime(last_time);
+}
 
 const InitData = async (e) => {
     try {
@@ -105,7 +186,6 @@ const InitData = async (e) => {
   }));
 
   console.log(transformedData);
-  setInitData(transformedData); // POST 요청 응답 데이터를 배열에 담아 설정합니다.
   const candlestickSeries = candlestickSeriesRef.current;
   candlestickSeries.setData(transformedData);
 

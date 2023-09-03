@@ -174,6 +174,7 @@ const BackTesting = () => {
 
           setData(transformedData);
           setIsLoading(false);
+          console.log(transformedData);
           // setResult(info_data[2]);
       })
       .catch((err) => {console.log(err);setIsLoading(false);});
@@ -271,7 +272,7 @@ const BackTesting = () => {
                 </FormControl>
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                <label htmlFor="term">기간:</label>
+                <label htmlFor="term">라벨링 기간:</label>
                 <TextField
                   type="textarea"
                   id="term"
@@ -305,13 +306,14 @@ const BackTesting = () => {
               </div>
             </form>
             
-            <Paper sx={{ padding: 2 ,marginTop: "26px"}}>
-            <div>
-              <label htmlFor="result">Result</label>
-              <ChartContainer ref={chartContainerRef}  />
-              {/* <pre>{JSON.stringify(result)}</pre> */}
-            </div>
+            <Paper sx={{ padding: 2, marginTop: "26px" }}>
+                <div>
+                  <label htmlFor="result">Result</label>
+                  <ChartContainer ref={chartContainerRef} />
+                  {/* Render the result values */}
+                </div>
             </Paper>
+
 
             <StyledModal open={showModal} onClose={() => setShowModal(false)}>
               <ModalContent>
@@ -344,16 +346,15 @@ const BackTesting = () => {
                   Close
                 </Button>
               </ModalContent>
-            </StyledModal>
-            <Box
-              display="flex"
-              justifyContent="center"
-              alignItems="center"
-              width="100%"
-              height="100vh"
-            >
-              
-            </Box>
+            </StyledModal>      
+                  <div>
+                    <p>Average Number of Sales: {result.averageNumberSales}</p>
+                    <p>Total Yield: {result.totalYield}</p>
+                    <p>Win Rate: {result.win_rate}</p>
+                    <p>MDD: {result.MDD}</p>
+                    <p>Max Buying: {result.max_buying}</p>
+                    <p>Number of Trading: {result.NumberTrading}</p>
+                  </div> 
           </Paper>
         </Grid>
       </Grid>
