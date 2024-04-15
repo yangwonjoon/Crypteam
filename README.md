@@ -43,7 +43,7 @@
 ## 구조도
 -----
 <p align="center">
-  <img width="1000" alt="Untitled (3)" src="https://github.com/yangwonjoon/Crypteam/assets/102780846/2a7af57a-aef8-4159-97d2-28154bf2f587">
+  <img width="700" alt="Untitled (3)" src="https://github.com/yangwonjoon/Crypteam/assets/102780846/2a7af57a-aef8-4159-97d2-28154bf2f587">
 </p>
 <br><br><br>
 
